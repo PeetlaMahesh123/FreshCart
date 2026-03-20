@@ -198,16 +198,16 @@ export function Orders() {
                             </div>
                             <span className="text-xs mt-1">Confirmed</span>
                           </div>
-                          <div className={`flex-1 h-1 ${order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-600' : 'bg-gray-200'}`}></div>
-                          <div className={`flex flex-col items-center ${order.status === 'shipped' || order.status === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+                          <div className={`flex-1 h-1 ${(order.status as any) === 'shipped' || (order.status as any) === 'delivered' ? 'bg-green-600' : 'bg-gray-200'}`}></div>
+                          <div className={`flex flex-col items-center ${(order.status as any) === 'shipped' || (order.status as any) === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.status as any) === 'shipped' || (order.status as any) === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
                               <Truck className="h-5 w-5" />
                             </div>
                             <span className="text-xs mt-1">Shipped</span>
                           </div>
-                          <div className={`flex-1 h-1 ${order.status === 'delivered' ? 'bg-green-600' : 'bg-gray-200'}`}></div>
-                          <div className={`flex flex-col items-center ${order.status === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+                          <div className={`flex-1 h-1 ${(order.status as any) === 'delivered' ? 'bg-green-600' : 'bg-gray-200'}`}></div>
+                          <div className={`flex flex-col items-center ${(order.status as any) === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.status as any) === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
                               <Package className="h-5 w-5" />
                             </div>
                             <span className="text-xs mt-1">Delivered</span>
