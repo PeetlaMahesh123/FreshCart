@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Package, ShoppingBag, Tag } from 'lucide-react';
+import { LayoutDashboard, Users, Package, ShoppingBag } from 'lucide-react';
 import { AdminDashboard } from './admin/AdminDashboard';
 import { AdminUsers } from './admin/AdminUsers';
 import { AdminProducts } from './admin/AdminProducts';
