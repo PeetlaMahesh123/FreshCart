@@ -300,3 +300,6 @@ export interface Database {
     }
   }
 }
+
+// Mock types for development
+export type SupabaseClient = any

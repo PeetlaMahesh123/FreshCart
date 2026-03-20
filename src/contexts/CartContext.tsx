@@ -1,21 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
-
-interface CartItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    discount_price: number | null;
-    image_url: string | null;
-    stock: number;
-    unit: string;
-  };
-}
+import { CartItem } from '../types';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -44,16 +30,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { data: cart } = await supabase
+      // Get or create cart
+      let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
+      // Create cart if it doesn't exist
       if (!cart) {
-        setCartItems([]);
-        setLoading(false);
-        return;
+        const { data: newCart, error: cartError } = await supabase
+          .from('cart')
+          .insert({ user_id: user.id })
+          .select('id')
+          .single();
+        
+        if (cartError) {
+          console.error('Error creating cart:', cartError);
+          setCartItems([]);
+          setLoading(false);
+          return;
+        }
+        cart = newCart;
       }
 
       const { data: items, error } = await supabase
@@ -79,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCartItems(items as unknown as CartItem[]);
     } catch (error) {
       console.error('Error fetching cart:', error);
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -92,13 +91,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     try {
-      const { data: cart } = await supabase
+      // Get or create cart
+      let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (!cart) throw new Error('Cart not found');
+      // Create cart if it doesn't exist
+      if (!cart) {
+        const { data: newCart, error: cartError } = await supabase
+          .from('cart')
+          .insert({ user_id: user.id })
+          .select('id')
+          .single();
+        
+        if (cartError) throw cartError;
+        cart = newCart;
+      }
 
       const existingItem = cartItems.find(item => item.product_id === productId);
 
