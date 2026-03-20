@@ -1,10 +1,13 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+
+// Load environment variables from .env file
+const env = loadEnv();
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/FreshCart/', // GitHub repository name
+  base: '/FreshCart/',
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
