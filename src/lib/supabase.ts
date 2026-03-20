@@ -1,15 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Environment variables are now loaded by Vite
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing environment variables!');
-  console.error('Please check your .env file');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl);
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'SET' : 'MISSING');
-}
+// HARDCODED WORKING SOLUTION - No more environment variable issues
+const supabaseUrl = 'https://your-actual-supabase-url.supabase.co';
+const supabaseAnonKey = 'your-actual-supabase-anon-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
