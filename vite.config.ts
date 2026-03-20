@@ -1,38 +1,45 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Load environment variables from .env file
-const env = loadEnv();
+export default defineConfig(({ mode }) => {
+  // ✅ Correct way to load env
+  const env = loadEnv(mode, process.cwd(), '');
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  base: '/FreshCart/',
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
-  server: {
-    hmr: {
-      overlay: false,
+  return {
+    plugins: [react()],
+    base: '/FreshCart/',
+
+    optimizeDeps: {
+      exclude: ['lucide-react'],
     },
-    watch: {
-      usePolling: false,
-      interval: 100,
-    },
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
-          lucide: ['lucide-react'],
-        },
+
+    server: {
+      hmr: {
+        overlay: false,
+      },
+      watch: {
+        usePolling: false,
+        interval: 100,
       },
     },
-    minify: 'terser',
-    sourcemap: false,
-    outDir: 'dist',
-    assetsDir: 'assets',
-  },
+
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            supabase: ['@supabase/supabase-js'],
+            lucide: ['lucide-react'],
+          },
+        },
+      },
+
+      // ✅ keep this (since you installed terser earlier)
+      minify: 'terser',
+
+      sourcemap: false,
+      outDir: 'dist',
+      assetsDir: 'assets',
+    },
+  };
 });
