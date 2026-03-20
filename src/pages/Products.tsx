@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Star, ShoppingCart, Search, Filter } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -7,17 +8,17 @@ import { Product, Category } from '../types';
 
 interface ProductsProps {
   onNavigate: (page: string, params?: Record<string, string>) => void;
-  categorySlug?: string;
 }
 
-export function Products({ onNavigate, categorySlug }: ProductsProps) {
+export function Products({ onNavigate }: ProductsProps) {
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const { category } = useParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(categorySlug || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(category || '');
   const [priceRange, setPriceRange] = useState<string>('');
   const [minRating, setMinRating] = useState<number>(0);
   const [showFilters, setShowFilters] = useState(false);

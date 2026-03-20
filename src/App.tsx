@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { Layout } from './components/Layout';
@@ -13,41 +13,10 @@ import { Orders } from './pages/Orders';
 import { Admin } from './pages/Admin';
 import { AuthCallback } from './pages/AuthCallback';
 
-type Page = 'home' | 'products' | 'cart' | 'checkout' | 'login' | 'register' | 'profile' | 'orders' | 'admin' | 'auth-callback';
-
 function AppContent() {
   const { loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>('home');
-  const [pageParams, setPageParams] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const path = window.location.pathname.slice(1) || 'home';
-    setCurrentPage(path as Page);
-  }, []);
-
-  const navigate = (page: string, params?: Record<string, string>) => {
-    setCurrentPage(page as Page);
-    setPageParams(params || {});
-    window.history.pushState({}, '', `/${page}`);
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'home': return <Home onNavigate={navigate} />;
-      case 'products': return <Products onNavigate={navigate} categorySlug={pageParams.category} />;
-      case 'cart': return <Cart onNavigate={navigate} />;
-      case 'checkout': return <Checkout onNavigate={navigate} />;
-      case 'login': return <Login onNavigate={navigate} />;
-      case 'register': return <Register onNavigate={navigate} />;
-      case 'profile': return <Profile />;
-      case 'orders': return <Orders />;
-      case 'admin': return <Admin onNavigate={navigate} />;
-      case 'auth-callback': return <AuthCallback />;
-      default: return <Home onNavigate={navigate} />;
-    }
-  };
-
-  // Simple loading - no complex logic
+  // Simple loading state
   if (loading) {
     return (
       <div className="min-h-screen gradient-primary flex items-center justify-center">
@@ -60,15 +29,23 @@ function AppContent() {
   }
 
   return (
-    <>
-      {currentPage === 'login' || currentPage === 'register' || currentPage === 'auth-callback' ? (
-        renderPage()
-      ) : (
-        <Layout currentPage={currentPage} onNavigate={navigate}>
-          {renderPage()}
-        </Layout>
-      )}
-    </>
+    <BrowserRouter basename="/FreshCart">
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:category" element={<Products />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/*" element={<Admin />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
