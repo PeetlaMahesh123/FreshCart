@@ -23,25 +23,39 @@ export function AdminOrders() {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Auto-refresh orders every 30 seconds
+    const interval = setInterval(fetchOrders, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchOrders = async () => {
     try {
+      console.log('=== FETCHING ORDERS DEBUG ===');
+      
       const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
-          user:profiles!user_id (
+          user:profiles!orders_user_id_fkey (
             full_name,
             email
           )
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setOrders(data as unknown as Order[]);
+      console.log('Orders data:', data);
+      console.log('Orders error:', error);
+
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+
+      setOrders(data || []);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error in fetchOrders:', error);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Package, Plus, CreditCard as Edit, Trash2, Search } from 'lucide-react';
+import { Plus, CreditCard as Edit, Trash2, Search } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -53,12 +53,40 @@ export function AdminProducts() {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) throw error;
+      console.log('=== DELETE DEBUG INFO ===');
+      console.log('Product ID to delete:', id);
+      
+      // Check current user and role
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user?.id);
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, email')
+        .eq('id', user?.id)
+        .single();
+      console.log('User profile:', profile);
+      
+      // Attempt deletion with detailed logging
+      console.log('Attempting deletion...');
+      const { error, data } = await supabase.from('products').delete().eq('id', id).select();
+      
+      console.log('Delete response:', { error, data });
+      
+      if (error) {
+        console.error('Delete error details:', error);
+        throw error;
+      }
+      
+      console.log('Delete successful!');
       await fetchData();
+      
+      // Show success message
+      alert('Product deleted successfully!');
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Failed to delete product');
+      console.error('=== DELETE FAILED ===');
+      console.error('Full error:', error);
+      alert(`Failed to delete product: ${error instanceof Error ? error.message : 'Unknown error'}\nCheck browser console for details.`);
     }
   };
 
