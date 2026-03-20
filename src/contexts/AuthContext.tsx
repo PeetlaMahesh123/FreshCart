@@ -1,26 +1,19 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  phone: string | null;
-  address: string | null;
-  role: 'user' | 'admin';
-}
+import { Profile } from '../types';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, phone?: string, role?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
+  makeAdmin: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,54 +40,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      (async () => {
+    // Simple auth initialization
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
+          fetchProfile(session.user.id);
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
         setLoading(false);
-      })();
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        if (_event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+          await createProfileAfterVerification(session.user);
+        }
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phone?: string, role: string = 'user') => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Always use email verification
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
             phone: phone || null,
-            role: 'user',
+            role: role,
           },
+          // Enable email confirmation
+          emailRedirectTo: import.meta.env.VITE_SITE_URL || 'http://localhost:5174/auth/callback',
         },
       });
 
       if (error) throw error;
 
-      if (data.user) {
-        await fetchProfile(data.user.id);
-      }
-
+      // Don't create profile immediately - wait for email verification
+      // Profile will be created after email confirmation
+      
       return { error: null };
     } catch (error) {
       return { error: error as Error };
+    }
+  };
+
+  const createProfileAfterVerification = async (user: User) => {
+    try {
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        // Create profile after email verification
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata?.full_name || '',
+            phone: user.user_metadata?.phone || null,
+            role: user.user_metadata?.role || 'user', // Use role from metadata
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (profileError) throw profileError;
+      }
+    } catch (error) {
+      console.error('Error creating profile after verification:', error);
     }
   };
 
@@ -148,6 +184,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const makeAdmin = async (email: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: 'admin', updated_at: new Date().toISOString() })
+        .eq('email', email);
+
+      if (error) throw error;
+
+      // Refresh current user's profile if they're the one being made admin
+      if (profile?.email === email) {
+        await fetchProfile(user!.id);
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -160,6 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         updateProfile,
         refreshProfile,
+        makeAdmin,
       }}
     >
       {children}

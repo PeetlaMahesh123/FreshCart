@@ -7,4 +7,26 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    hmr: {
+      overlay: false,
+    },
+    watch: {
+      usePolling: false,
+      interval: 100,
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          lucide: ['lucide-react'],
+        },
+      },
+    },
+    minify: 'terser',
+    sourcemap: false,
+  },
 });
