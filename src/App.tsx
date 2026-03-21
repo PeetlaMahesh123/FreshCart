@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { Layout } from './components/Layout';
@@ -16,7 +16,7 @@ import { AuthCallback } from './pages/AuthCallback';
 function AppContent() {
   const { loading } = useAuth();
 
-  // Simple loading state
+  // Loading Screen
   if (loading) {
     return (
       <div className="min-h-screen gradient-primary flex items-center justify-center">
@@ -29,9 +29,12 @@ function AppContent() {
   }
 
   return (
-    <BrowserRouter basename="/FreshCart">
+    <HashRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        {/* IMPORTANT: Show Home directly on root path */}
+        <Route path="/" element={<Home />} />
+        
+        {/* Main Pages */}
         <Route path="/home" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:category" element={<Products />} />
@@ -41,11 +44,15 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<Orders />} />
+
+        {/* Admin */}
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/*" element={<Admin />} />
+
+        {/* Auth */}
         <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
