@@ -12,9 +12,18 @@ import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
 import { Admin } from './pages/Admin';
 import { AuthCallback } from './pages/AuthCallback';
+import { validateSupabaseConnection } from './lib/supabase';
 
 function AppContent() {
   const { loading } = useAuth();
+
+  // Validate Supabase connection on app start
+  useEffect(() => {
+    const isValid = validateSupabaseConnection();
+    if (!isValid) {
+      console.error('❌ Application cannot start without valid Supabase connection');
+    }
+  }, []);
 
   // Loading Screen
   if (loading) {
