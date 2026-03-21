@@ -2,6 +2,7 @@ import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { useAuth } from './contexts/AuthContext';
 import './index.css';
 
 // Enhanced error boundary with detailed error information
@@ -84,10 +85,9 @@ class ErrorBoundary extends React.Component<
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-blue-900 mb-2">📋 Quick Fix Steps:</h3>
               <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                <li>Press F12 to open Developer Tools</li>
-                <li>Go to Console tab</li>
-                <li>Look for red error messages</li>
-                <li>Check if Supabase credentials are configured</li>
+                <li>Check console for red error messages</li>
+                <li>Look for missing imports</li>
+                <li>Check if all React hooks are imported</li>
                 <li>Try reloading the application</li>
               </ol>
             </div>
