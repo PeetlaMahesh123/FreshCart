@@ -23,8 +23,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
   const fetchProfile = async (userId: string) => {
+    if (!supabase) {
+      console.error('❌ Supabase not available for profile fetch');
+      setSupabaseError('Database connection error');
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -32,25 +39,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid API key') || error.status === 401) {
+          setSupabaseError('Invalid API key - please check your Supabase configuration');
+          console.error('❌ 401/Invalid API Key Error:', error.message);
+        } else if (error.message.includes('does not exist')) {
+          setSupabaseError('Database tables not created');
+          console.error('❌ Database tables missing:', error.message);
+        } else {
+          console.error('Error fetching profile:', error);
+        }
+        throw error;
+      }
       setProfile(data);
+      setSupabaseError(null);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Don't set loading to false here, let the main useEffect handle it
     }
   };
 
   useEffect(() => {
-    // Simple auth initialization
+    // Enhanced auth initialization with error handling
     const initializeAuth = async () => {
+      if (!supabase) {
+        console.error('❌ Supabase client not available');
+        setSupabaseError('Supabase not configured - please check your environment variables');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Test connection first
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          if (sessionError.message.includes('Invalid API key') || sessionError.status === 401) {
+            setSupabaseError('Invalid API key - please check your Supabase configuration');
+            console.error('❌ 401/Invalid API Key Error in auth:', sessionError.message);
+          } else {
+            setSupabaseError('Authentication error: ' + sessionError.message);
+            console.error('❌ Auth session error:', sessionError.message);
+          }
+          setLoading(false);
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
+        setSupabaseError(null);
+        
         if (session?.user) {
-          fetchProfile(session.user.id);
+          await fetchProfile(session.user.id);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('❌ Auth initialization error:', error);
+        setSupabaseError('Failed to initialize authentication');
       } finally {
         setLoading(false);
       }
@@ -58,95 +102,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        if (_event === 'SIGNED_IN' && session.user.email_confirmed_at) {
-          await createProfileAfterVerification(session.user);
+    // Listen for auth changes with error handling
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('🔄 Auth state changed:', event);
+          
+          if (event === 'TOKEN_REFRESHED' && session) {
+            console.log('✅ Token refreshed successfully');
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setProfile(null);
+            setSession(null);
+            setSupabaseError(null);
+          } else if (session) {
+            setUser(session.user);
+            setSession(session);
+            await fetchProfile(session.user.id);
+          }
         }
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
+      );
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    }
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, phone?: string, role: string = 'user') => {
+  const signUp = async (email: string, password: string, fullName: string, phone?: string, role?: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase not available') };
+    }
+
     try {
-      // Always use email verification
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            phone: phone || null,
-            role: role,
-          },
-          // Enable email confirmation
-          emailRedirectTo: import.meta.env.VITE_SITE_URL || 'http://localhost:5174/auth/callback',
-        },
+            phone,
+            role: role || 'user'
+          }
+        }
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid API key') || error.status === 401) {
+          setSupabaseError('Invalid API key - please check your Supabase configuration');
+        }
+        return { error };
+      }
 
-      // Don't create profile immediately - wait for email verification
-      // Profile will be created after email confirmation
-      
       return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
   };
 
-  const createProfileAfterVerification = async (user: User) => {
-    try {
-      // Check if profile already exists
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!existingProfile) {
-        // Create profile after email verification
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email || '',
-            full_name: user.user_metadata?.full_name || '',
-            phone: user.user_metadata?.phone || null,
-            role: user.user_metadata?.role || 'user', // Use role from metadata
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
-
-        if (profileError) throw profileError;
-      }
-    } catch (error) {
-      console.error('Error creating profile after verification:', error);
-    }
-  };
-
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase not available') };
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
-      if (error) throw error;
-
-      if (data.user) {
-        await fetchProfile(data.user.id);
+      if (error) {
+        if (error.message.includes('Invalid API key') || error.status === 401) {
+          setSupabaseError('Invalid API key - please check your Supabase configuration');
+        } else if (error.message.includes('Invalid login credentials')) {
+          return { error: new Error('Invalid email or password') };
+        }
+        return { error };
       }
 
+      setSupabaseError(null);
       return { error: null };
     } catch (error) {
       return { error: error as Error };
@@ -154,24 +186,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    if (!supabase) {
+      return;
+    }
+
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      setSupabaseError(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
     setProfile(null);
     setSession(null);
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    try {
-      if (!user) throw new Error('No user logged in');
+    if (!supabase || !user) {
+      return { error: new Error('Not authenticated or Supabase not available') };
+    }
 
+    try {
       const { error } = await supabase
         .from('profiles')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .update(updates)
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid API key') || error.status === 401) {
+          setSupabaseError('Invalid API key - please check your Supabase configuration');
+        }
+        return { error };
+      }
 
-      await fetchProfile(user.id);
+      await refreshProfile();
       return { error: null };
     } catch (error) {
       return { error: error as Error };
@@ -185,17 +235,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const makeAdmin = async (email: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase not available') };
+    }
+
     try {
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
+      
+      if (userError) {
+        if (userError.message.includes('Invalid API key') || userError.status === 401) {
+          setSupabaseError('Invalid API key - admin functions require service role key');
+        }
+        return { error: userError };
+      }
+
+      if (!userData.user) {
+        return { error: new Error('User not found') };
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ role: 'admin', updated_at: new Date().toISOString() })
-        .eq('email', email);
+        .update({ role: 'admin' })
+        .eq('id', userData.user.id);
 
-      if (error) throw error;
-
-      // Refresh current user's profile if they're the one being made admin
-      if (profile?.email === email) {
-        await fetchProfile(user!.id);
+      if (error) {
+        return { error };
       }
 
       return { error: null };
@@ -204,22 +268,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const value: AuthContextType = {
+    user,
+    profile,
+    session,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    updateProfile,
+    refreshProfile,
+    makeAdmin
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        session,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        updateProfile,
-        refreshProfile,
-        makeAdmin,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
+      {supabaseError && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#ef4444',
+          color: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          maxWidth: '400px',
+          zIndex: 9999,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>⚠️ Configuration Error</div>
+          <div style={{ fontSize: '14px', marginBottom: '12px' }}>{supabaseError}</div>
+          <div style={{ fontSize: '12px', opacity: 0.9 }}>
+            Please check your environment variables and restart the application.
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 }

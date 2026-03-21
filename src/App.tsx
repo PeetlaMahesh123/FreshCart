@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { Layout } from './components/Layout';
@@ -17,6 +17,7 @@ import { validateSupabaseConnection } from './lib/supabase';
 
 function AppContent() {
   const { loading } = useAuth();
+  const navigate = useNavigate();
 
   // Validate Supabase connection on app start
   useEffect(() => {
@@ -26,70 +27,76 @@ function AppContent() {
     }
   }, []);
 
-  // Loading Screen
+  // Handle navigation
+  const handleNavigate = (page: string) => {
+    navigate(`/${page === 'home' ? '' : page}`);
+  };
+
+  // Professional Loading Screen
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '2rem',
-            height: '2rem',
-            border: '4px solid #10b981',
-            borderTop: '4px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem'
-          }}></div>
-          <p style={{ color: '#6b7280' }}>Loading FreshCart...</p>
+      <div className="min-h-screen bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative mb-8">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto animate-pulse shadow-xl">
+              <div className="w-8 h-8 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full animate-spin border-4 border-transparent border-t-white"></div>
+            </div>
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-accent rounded-full animate-bounce"></div>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">FreshCart</h1>
+          <p className="text-white/90 animate-pulse">Loading your shopping experience...</p>
+          <div className="mt-6 flex justify-center gap-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
+    <Routes>
+      {/* IMPORTANT: Show Home directly on root path */}
+      <Route path="/" element={<Layout currentPage="home" onNavigate={handleNavigate}><Home /></Layout>} />
+      
+      {/* Main Pages with Layout */}
+      <Route path="/home" element={<Layout currentPage="home" onNavigate={handleNavigate}><Home /></Layout>} />
+      <Route path="/products" element={<Layout currentPage="products" onNavigate={handleNavigate}><Products /></Layout>} />
+      <Route path="/products/:category" element={<Layout currentPage="products" onNavigate={handleNavigate}><Products /></Layout>} />
+      <Route path="/cart" element={<Layout currentPage="cart" onNavigate={handleNavigate}><Cart /></Layout>} />
+      <Route path="/checkout" element={<Layout currentPage="checkout" onNavigate={handleNavigate}><Checkout /></Layout>} />
+      <Route path="/profile" element={<Layout currentPage="profile" onNavigate={handleNavigate}><Profile /></Layout>} />
+      <Route path="/orders" element={<Layout currentPage="orders" onNavigate={handleNavigate}><Orders /></Layout>} />
+
+      {/* Auth pages without Layout */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* Admin */}
+      <Route path="/admin" element={<Layout currentPage="admin" onNavigate={handleNavigate}><Admin /></Layout>} />
+      <Route path="/admin/*" element={<Layout currentPage="admin" onNavigate={handleNavigate}><Admin /></Layout>} />
+
+      {/* Auth */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
+    </Routes>
+  );
+}
+
+function AppWrapper() {
+  return (
     <HashRouter>
-      <Routes>
-        {/* IMPORTANT: Show Home directly on root path */}
-        <Route path="/" element={<Layout currentPage="home"><Home /></Layout>} />
-        
-        {/* Main Pages with Layout */}
-        <Route path="/home" element={<Layout currentPage="home"><Home /></Layout>} />
-        <Route path="/products" element={<Layout currentPage="products"><Products /></Layout>} />
-        <Route path="/products/:category" element={<Layout currentPage="products"><Products /></Layout>} />
-        <Route path="/cart" element={<Layout currentPage="cart"><Cart /></Layout>} />
-        <Route path="/checkout" element={<Layout currentPage="checkout"><Checkout /></Layout>} />
-        <Route path="/profile" element={<Layout currentPage="profile"><Profile /></Layout>} />
-        <Route path="/orders" element={<Layout currentPage="orders"><Orders /></Layout>} />
-
-        {/* Auth pages without Layout */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        {/* Admin */}
-        <Route path="/admin" element={<Layout currentPage="admin"><Admin /></Layout>} />
-        <Route path="/admin/*" element={<Layout currentPage="admin"><Admin /></Layout>} />
-
-        {/* Auth */}
-        <Route path="/auth/callback" element={<AuthCallback />} />
-      </Routes>
+      <AuthProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </AuthProvider>
     </HashRouter>
   );
 }
 
 function App() {
-  return (
-    <AuthProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
-    </AuthProvider>
-  );
+  return <AppWrapper />;
 }
 
 export default App;

@@ -17,117 +17,65 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
   const handleSignOut = async () => {
     await signOut();
-    onNavigate('home');
+    onNavigate && onNavigate('home');
   };
 
-  const navLinkStyle = (active: boolean) => ({
-    color: active ? '#059669' : '#374151',
-    fontWeight: '500',
-    transition: 'all 0.3s ease',
-    position: 'relative' as const,
-    cursor: 'pointer',
-    padding: '0.5rem 0'
-  });
+  const navLinkClass = (active: boolean) => 
+    `nav-link ${active ? 'active' : ''} hover:bg-neutral-50 transition-colors`;
+
+  const safeNavigate = (page: string) => {
+    if (onNavigate && typeof onNavigate === 'function') {
+      onNavigate(page);
+    } else {
+      console.warn('onNavigate is not available or not a function');
+    }
+  };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)'
-    }}>
-      <header style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(8px)',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-        position: 'sticky' as const,
-        top: '0',
-        zIndex: '50',
-        borderBottom: '1px solid #f3f4f6',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)',
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 1rem'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            height: '3.5rem'
-          }}>
+    <div className="min-h-screen bg-neutral-50">
+      {/* Professional Header */}
+      <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-neutral-200">
+        <div className="container">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                cursor: 'pointer'
-              }}
-              onClick={() => onNavigate('home')}
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => safeNavigate('home')}
             >
-              <div style={{ position: 'relative' as const }}>
-                <Package 
-                  style={{
-                    height: '2rem',
-                    width: '2rem',
-                    color: '#059669',
-                    transition: 'transform 0.3s ease'
-                  }}
-                />
-                <div style={{
-                  position: 'absolute' as const,
-                  top: '-2px',
-                  right: '-2px',
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: '#10b981',
-                  borderRadius: '50%',
-                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                }}></div>
+              <div className="relative">
+                <Package className="h-8 w-8 text-brand-primary group-hover:scale-110 transition-transform" />
+                <div className="absolute -top-1 -right-1 h-3 w-3 bg-brand-secondary rounded-full animate-pulse"></div>
               </div>
-              <span style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                background: 'linear-gradient(to right, #059669, #10b981)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
+              <span className="text-2xl font-bold bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent">
                 FreshCart
               </span>
             </div>
 
             {/* Desktop Navigation */}
-            <nav style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '2rem'
-            }} className="desktop-nav">
+            <nav className="hidden md:flex items-center gap-6">
               <button
-                onClick={() => onNavigate('home')}
-                style={navLinkStyle(currentPage === 'home')}
+                onClick={() => safeNavigate('home')}
+                className={navLinkClass(currentPage === 'home')}
               >
                 Home
               </button>
               <button
-                onClick={() => onNavigate('products')}
-                style={navLinkStyle(currentPage === 'products')}
+                onClick={() => safeNavigate('products')}
+                className={navLinkClass(currentPage === 'products')}
               >
                 Products
               </button>
               {user && (
                 <>
                   <button
-                    onClick={() => onNavigate('orders')}
-                    style={navLinkStyle(currentPage === 'orders')}
+                    onClick={() => safeNavigate('orders')}
+                    className={navLinkClass(currentPage === 'orders')}
                   >
                     Orders
                   </button>
                   <button
-                    onClick={() => onNavigate('profile')}
-                    style={navLinkStyle(currentPage === 'profile')}
+                    onClick={() => safeNavigate('profile')}
+                    className={navLinkClass(currentPage === 'profile')}
                   >
                     Profile
                   </button>
@@ -135,47 +83,25 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               )}
               {profile?.role === 'admin' && (
                 <button
-                  onClick={() => onNavigate('admin')}
-                  style={navLinkStyle(currentPage === 'admin')}
+                  onClick={() => safeNavigate('admin')}
+                  className={navLinkClass(currentPage === 'admin')}
                 >
-                  <LayoutDashboard style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
                   Admin
                 </button>
               )}
             </nav>
 
             {/* Right side actions */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
+            <div className="flex items-center gap-4">
               {/* Cart */}
               <button
-                onClick={() => onNavigate('cart')}
-                style={{
-                  position: 'relative' as const,
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
+                onClick={() => safeNavigate('cart')}
+                className="relative p-2 rounded-lg hover:bg-neutral-100 transition-colors"
               >
-                <ShoppingCart style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                <ShoppingCart className="h-6 w-6 text-neutral-600" />
                 {cartCount > 0 && (
-                  <span style={{
-                    position: 'absolute' as const,
-                    top: '0',
-                    right: '0',
-                    backgroundColor: '#dc2626',
-                    color: 'white',
-                    borderRadius: '9999px',
-                    padding: '0.125rem 0.375rem',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    minWidth: '1.25rem',
-                    textAlign: 'center'
-                  }}>
+                  <span className="absolute -top-1 -right-1 bg-error text-white rounded-full px-2 py-1 text-xs font-bold min-w-6 text-center">
                     {cartCount}
                   </span>
                 )}
@@ -183,57 +109,29 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
               {/* User menu */}
               {user ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-neutral-600 hidden sm:block">
                     {profile?.full_name || user.email?.split('@')[0]}
                   </span>
                   <button
                     onClick={handleSignOut}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.5rem',
-                      backgroundColor: '#f3f4f6',
-                      color: '#374151',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
+                    className="btn btn-secondary flex items-center gap-2"
                   >
-                    <LogOut style={{ height: '1rem', width: '1rem' }} />
-                    <span className="desktop-signout">Sign Out</span>
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden sm:block">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div className="flex items-center gap-3">
                   <button
-                    onClick={() => onNavigate('login')}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.5rem',
-                      backgroundColor: 'white',
-                      color: '#374151',
-                      border: '2px solid #e5e7eb',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
+                    onClick={() => safeNavigate('login')}
+                    className="btn btn-outline"
                   >
                     Login
                   </button>
                   <button
-                    onClick={() => onNavigate('register')}
-                    style={{
-                      background: 'linear-gradient(to right, #059669, #10b981)',
-                      color: 'white',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.5rem',
-                      fontWeight: '600',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
+                    onClick={() => safeNavigate('register')}
+                    className="btn btn-primary"
                   >
                     Register
                   </button>
@@ -243,22 +141,12 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-                className="mobile-menu-button"
+                className="md:hidden p-2 rounded-lg hover:bg-neutral-100 transition-colors"
               >
                 {mobileMenuOpen ? (
-                  <X style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                  <X className="h-6 w-6 text-neutral-600" />
                 ) : (
-                  <Menu style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                  <Menu className="h-6 w-6 text-neutral-600" />
                 )}
               </button>
             </div>
@@ -268,104 +156,167 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <nav style={{
-          position: 'fixed' as const,
-          top: '4rem',
-          left: '0',
-          right: '0',
-          backgroundColor: 'white',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          zIndex: '40',
-          padding: '1rem'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button
-              onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
-              style={navLinkStyle(currentPage === 'home')}
-            >
-              Home
-            </button>
-            <button
-              onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }}
-              style={navLinkStyle(currentPage === 'products')}
-            >
-              Products
-            </button>
-            {user && (
-              <>
-                <button
-                  onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }}
-                  style={navLinkStyle(currentPage === 'orders')}
-                >
-                  Orders
-                </button>
-                <button
-                  onClick={() => { onNavigate('profile'); setMobileMenuOpen(false); }}
-                  style={navLinkStyle(currentPage === 'profile')}
-                >
-                  Profile
-                </button>
-              </>
-            )}
-            {profile?.role === 'admin' && (
+        <nav className="fixed top-16 left-0 right-0 bg-white shadow-lg z-40 border-b border-neutral-200">
+          <div className="container">
+            <div className="flex flex-col gap-2 py-4">
               <button
-                onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }}
-                style={navLinkStyle(currentPage === 'admin')}
+                onClick={() => { safeNavigate('home'); setMobileMenuOpen(false); }}
+                className={navLinkClass(currentPage === 'home')}
               >
-                <LayoutDashboard style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
-                Admin
+                Home
               </button>
-            )}
+              <button
+                onClick={() => { safeNavigate('products'); setMobileMenuOpen(false); }}
+                className={navLinkClass(currentPage === 'products')}
+              >
+                Products
+              </button>
+              {user && (
+                <>
+                  <button
+                    onClick={() => { safeNavigate('orders'); setMobileMenuOpen(false); }}
+                    className={navLinkClass(currentPage === 'orders')}
+                  >
+                    Orders
+                  </button>
+                  <button
+                    onClick={() => { safeNavigate('profile'); setMobileMenuOpen(false); }}
+                    className={navLinkClass(currentPage === 'profile')}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              {profile?.role === 'admin' && (
+                <button
+                  onClick={() => { safeNavigate('admin'); setMobileMenuOpen(false); }}
+                  className={navLinkClass(currentPage === 'admin')}
+                >
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Admin
+                </button>
+              )}
+            </div>
           </div>
         </nav>
       )}
 
       {/* Main Content */}
-      <main style={{ paddingBottom: '2rem' }}>
+      <main className="pb-8">
         {children}
       </main>
 
-      {/* Footer */}
-      <footer style={{
-        backgroundColor: '#f9fafb',
-        borderTop: '1px solid #e5e7eb',
-        padding: '2rem 0',
-        marginTop: 'auto'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 1rem',
-          textAlign: 'center'
-        }}>
-          <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-            © 2024 FreshCart. All rights reserved.
-          </p>
+      {/* Professional Footer */}
+      <footer className="bg-neutral-900 text-white border-t border-neutral-800">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 py-12">
+            {/* Company Info */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Package className="h-8 w-8 text-brand-secondary" />
+                <span className="text-xl font-bold">FreshCart</span>
+              </div>
+              <p className="text-neutral-400 text-sm">
+                Your trusted online marketplace for fresh products and quality goods.
+              </p>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors cursor-pointer">
+                  <span className="text-xs">f</span>
+                </div>
+                <div className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors cursor-pointer">
+                  <span className="text-xs">t</span>
+                </div>
+                <div className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-neutral-700 transition-colors cursor-pointer">
+                  <span className="text-xs">i</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Quick Links</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => safeNavigate('home')}
+                  className="block text-neutral-400 hover:text-white transition-colors text-sm"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => safeNavigate('products')}
+                  className="block text-neutral-400 hover:text-white transition-colors text-sm"
+                >
+                  Products
+                </button>
+                <button
+                  onClick={() => safeNavigate('orders')}
+                  className="block text-neutral-400 hover:text-white transition-colors text-sm"
+                >
+                  Orders
+                </button>
+                <button
+                  onClick={() => safeNavigate('profile')}
+                  className="block text-neutral-400 hover:text-white transition-colors text-sm"
+                >
+                  Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Categories</h3>
+              <div className="space-y-2">
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Electronics
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Clothing
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Home & Garden
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Sports
+                </button>
+              </div>
+            </div>
+
+            {/* Support */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Support</h3>
+              <div className="space-y-2">
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Help Center
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Contact Us
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Privacy Policy
+                </button>
+                <button className="block text-neutral-400 hover:text-white transition-colors text-sm">
+                  Terms of Service
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Footer */}
+          <div className="border-t border-neutral-800 py-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-neutral-400 text-sm">
+                © 2024 FreshCart. All rights reserved.
+              </p>
+              <div className="flex items-center gap-6 text-sm text-neutral-400">
+                <span>Powered by React & Supabase</span>
+                <span>•</span>
+                <span>Made with ❤️</span>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        @media (min-width: 768px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-          .desktop-signout {
-            display: inline !important;
-          }
-          .mobile-menu-button {
-            display: none !important;
-          }
-        }
-        
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
-        }
-      `}</style>
     </div>
   );
 }
