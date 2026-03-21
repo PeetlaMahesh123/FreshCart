@@ -20,133 +20,274 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
     onNavigate('home');
   };
 
+  const navLinkStyle = (active: boolean) => ({
+    color: active ? '#059669' : '#374151',
+    fontWeight: '500',
+    transition: 'all 0.3s ease',
+    position: 'relative' as const,
+    cursor: 'pointer',
+    padding: '0.5rem 0'
+  });
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-gray-100 safe-area-inset">
-        <div className="container-responsive">
-          <div className="flex justify-between items-center h-14 sm:h-16">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)'
+    }}>
+      <header style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(8px)',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        position: 'sticky' as const,
+        top: '0',
+        zIndex: '50',
+        borderBottom: '1px solid #f3f4f6',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 1rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: '3.5rem'
+          }}>
             <div
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer group"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                cursor: 'pointer'
+              }}
               onClick={() => onNavigate('home')}
             >
-              <div className="relative">
-                <Package className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 group-hover:scale-110 transition-transform duration-300" />
-                <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-2 w-2 sm:h-3 sm:w-3 bg-green-500 rounded-full animate-pulse"></div>
+              <div style={{ position: 'relative' as const }}>
+                <Package 
+                  style={{
+                    height: '2rem',
+                    width: '2rem',
+                    color: '#059669',
+                    transition: 'transform 0.3s ease'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute' as const,
+                  top: '-2px',
+                  right: '-2px',
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: '#10b981',
+                  borderRadius: '50%',
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                }}></div>
               </div>
-              <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <span style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                background: 'linear-gradient(to right, #059669, #10b981)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
                 FreshCart
               </span>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-4 lg:space-x-8">
+            <nav style={{
+              display: 'none',
+              alignItems: 'center',
+              gap: '2rem'
+            }} className="desktop-nav">
               <button
                 onClick={() => onNavigate('home')}
-                className={`nav-link ${currentPage === 'home' ? 'text-green-600' : ''}`}
+                style={navLinkStyle(currentPage === 'home')}
               >
                 Home
               </button>
               <button
                 onClick={() => onNavigate('products')}
-                className={`nav-link ${currentPage === 'products' ? 'text-green-600' : ''}`}
+                style={navLinkStyle(currentPage === 'products')}
               >
                 Products
               </button>
               {user && (
+                <>
+                  <button
+                    onClick={() => onNavigate('orders')}
+                    style={navLinkStyle(currentPage === 'orders')}
+                  >
+                    Orders
+                  </button>
+                  <button
+                    onClick={() => onNavigate('profile')}
+                    style={navLinkStyle(currentPage === 'profile')}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              {profile?.role === 'admin' && (
                 <button
-                  onClick={() => onNavigate('orders')}
-                  className={`nav-link ${currentPage === 'orders' ? 'text-green-600' : ''}`}
+                  onClick={() => onNavigate('admin')}
+                  style={navLinkStyle(currentPage === 'admin')}
                 >
-                  My Orders
+                  <LayoutDashboard style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
+                  Admin
                 </button>
               )}
             </nav>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-              {user && (
-                <button
-                  onClick={() => onNavigate('cart')}
-                  className="relative p-1.5 sm:p-2 text-gray-700 hover:text-green-600 transition-all duration-300 group"
-                >
-                  <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center animate-bounce">
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
-              )}
+            {/* Right side actions */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              {/* Cart */}
+              <button
+                onClick={() => onNavigate('cart')}
+                style={{
+                  position: 'relative' as const,
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+              >
+                <ShoppingCart style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                {cartCount > 0 && (
+                  <span style={{
+                    position: 'absolute' as const,
+                    top: '0',
+                    right: '0',
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    borderRadius: '9999px',
+                    padding: '0.125rem 0.375rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 'bold',
+                    minWidth: '1.25rem',
+                    textAlign: 'center'
+                  }}>
+                    {cartCount}
+                  </span>
+                )}
+              </button>
 
+              {/* User menu */}
               {user ? (
-                <div className="flex items-center space-x-2 lg:space-x-3">
-                  {profile?.role === 'admin' && (
-                    <button
-                      onClick={() => onNavigate('admin')}
-                      className="hidden sm:flex items-center space-x-1 lg:space-x-2 px-3 lg:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                    >
-                      <LayoutDashboard className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="hidden lg:inline">Admin</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => onNavigate('profile')}
-                    className="hidden sm:flex items-center space-x-1 lg:space-x-2 px-3 lg:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-300"
-                  >
-                    <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline max-w-[100px] truncate">
-                      {profile?.full_name || 'Profile'}
-                    </span>
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                    {profile?.full_name || user.email?.split('@')[0]}
+                  </span>
                   <button
                     onClick={handleSignOut}
-                    className="p-1.5 sm:p-2 text-gray-700 hover:text-red-600 transition-all duration-300 hover:bg-red-50 rounded-xl"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      backgroundColor: '#f3f4f6',
+                      color: '#374151',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
-                    <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <LogOut style={{ height: '1rem', width: '1rem' }} />
+                    <span className="desktop-signout">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2 lg:space-x-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <button
                     onClick={() => onNavigate('login')}
-                    className="hidden sm:block px-3 lg:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-green-600 transition-all duration-300"
+                    style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      backgroundColor: 'white',
+                      color: '#374151',
+                      border: '2px solid #e5e7eb',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
                     Login
                   </button>
                   <button
                     onClick={() => onNavigate('register')}
-                    className="btn-primary text-xs sm:text-sm px-3 lg:px-4 py-2"
+                    style={{
+                      background: 'linear-gradient(to right, #059669, #10b981)',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
-                    Sign Up
+                    Register
                   </button>
                 </div>
               )}
-            </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
+              {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-gray-700 hover:text-green-600 transition-colors"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                className="mobile-menu-button"
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? (
+                  <X style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                ) : (
+                  <Menu style={{ height: '1.5rem', width: '1.5rem', color: '#374151' }} />
+                )}
               </button>
             </div>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 px-responsive py-4 space-y-4 animate-fade-in">
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <nav style={{
+          position: 'fixed' as const,
+          top: '4rem',
+          left: '0',
+          right: '0',
+          backgroundColor: 'white',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          zIndex: '40',
+          padding: '1rem'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
-              className={`block w-full text-left nav-link ${currentPage === 'home' ? 'text-green-600' : ''}`}
+              style={navLinkStyle(currentPage === 'home')}
             >
               Home
             </button>
             <button
               onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }}
-              className={`block w-full text-left nav-link ${currentPage === 'products' ? 'text-green-600' : ''}`}
+              style={navLinkStyle(currentPage === 'products')}
             >
               Products
             </button>
@@ -154,134 +295,77 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               <>
                 <button
                   onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }}
-                  className={`block w-full text-left nav-link ${currentPage === 'orders' ? 'text-green-600' : ''}`}
+                  style={navLinkStyle(currentPage === 'orders')}
                 >
-                  My Orders
+                  Orders
                 </button>
                 <button
-                  onClick={() => { onNavigate('cart'); setMobileMenuOpen(false); }}
-                  className="flex items-center space-x-2 nav-link"
+                  onClick={() => { onNavigate('profile'); setMobileMenuOpen(false); }}
+                  style={navLinkStyle(currentPage === 'profile')}
                 >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span>Cart {cartCount > 0 && `(${cartCount})`}</span>
+                  Profile
                 </button>
-                {profile?.role === 'admin' && (
-                  <button
-                    onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }}
-                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Admin</span>
-                  </button>
-                )}
               </>
             )}
-            {!user && (
-              <div className="space-y-2 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => { onNavigate('login'); setMobileMenuOpen(false); }}
-                  className="block w-full text-left nav-link"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => { onNavigate('register'); setMobileMenuOpen(false); }}
-                  className="btn-primary text-sm w-full"
-                >
-                  Sign Up
-                </button>
-              </div>
+            {profile?.role === 'admin' && (
+              <button
+                onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }}
+                style={navLinkStyle(currentPage === 'admin')}
+              >
+                <LayoutDashboard style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
+                Admin
+              </button>
             )}
           </div>
-        )}
-      </header>
+        </nav>
+      )}
 
-      <main>{children}</main>
+      {/* Main Content */}
+      <main style={{ paddingBottom: '2rem' }}>
+        {children}
+      </main>
 
-      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white mt-16 sm:mt-20 border-t border-gray-700">
-        <div className="container-responsive py-8 sm:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Package className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
-                <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">FreshCart</span>
-              </div>
-              <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
-                Your trusted source for fresh fruits, vegetables, and premium dry fruits delivered to your doorstep with care and quality.
-              </p>
-              <div className="flex space-x-3 sm:space-x-4">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors cursor-pointer">
-                  <span className="text-xs">f</span>
-                </div>
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors cursor-pointer">
-                  <span className="text-xs">t</span>
-                </div>
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors cursor-pointer">
-                  <span className="text-xs">i</span>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Quick Links</h3>
-              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                <li><button onClick={() => onNavigate('home')} className="text-gray-400 hover:text-green-400 transition-colors">Home</button></li>
-                <li><button onClick={() => onNavigate('products')} className="text-gray-400 hover:text-green-400 transition-colors">Products</button></li>
-                <li><button onClick={() => onNavigate('about')} className="text-gray-400 hover:text-green-400 transition-colors">About Us</button></li>
-                <li><button onClick={() => onNavigate('contact')} className="text-gray-400 hover:text-green-400 transition-colors">Contact</button></li>
-                {user && <li><button onClick={() => onNavigate('orders')} className="text-gray-400 hover:text-green-400 transition-colors">Orders</button></li>}
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Categories</h3>
-              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                <li><button className="text-gray-400 hover:text-green-400 transition-colors">Fruits & Vegetables</button></li>
-                <li><button className="text-gray-400 hover:text-green-400 transition-colors">Dairy & Eggs</button></li>
-                <li><button className="text-gray-400 hover:text-green-400 transition-colors">Bakery Items</button></li>
-                <li><button className="text-gray-400 hover:text-green-400 transition-colors">Pantry Staples</button></li>
-                <li><button className="text-gray-400 hover:text-green-400 transition-colors">Beverages</button></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Contact Info</h3>
-              <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-400">
-                <p className="flex items-center space-x-2">
-                  <span className="text-green-400">📧</span>
-                  <span className="break-all">support@freshcart.com</span>
-                </p>
-                <p className="flex items-center space-x-2">
-                  <span className="text-green-400">📞</span>
-                  <span>+91 1234567890</span>
-                </p>
-                <p className="flex items-start space-x-2">
-                  <span className="text-green-400">📍</span>
-                  <span className="break-words">123 Market Street, Bangalore, India</span>
-                </p>
-                <p className="flex items-center space-x-2">
-                  <span className="text-green-400">🕐</span>
-                  <span className="break-words">Mon-Sat: 9AM-8PM, Sun: 10AM-6PM</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-700">
-            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-              <p className="text-xs sm:text-sm text-gray-400">
-                &copy; 2026 FreshCart. All rights reserved.
-              </p>
-              <div className="flex flex-wrap justify-center sm:justify-end gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
-                <button className="hover:text-green-400 transition-colors">Privacy Policy</button>
-                <button className="hover:text-green-400 transition-colors">Terms of Service</button>
-                <button className="hover:text-green-400 transition-colors">Refund Policy</button>
-                <button className="hover:text-green-400 transition-colors">Shipping Info</button>
-              </div>
-            </div>
-          </div>
+      {/* Footer */}
+      <footer style={{
+        backgroundColor: '#f9fafb',
+        borderTop: '1px solid #e5e7eb',
+        padding: '2rem 0',
+        marginTop: 'auto'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 1rem',
+          textAlign: 'center'
+        }}>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+            © 2024 FreshCart. All rights reserved.
+          </p>
         </div>
       </footer>
+
+      <style jsx>{`
+        @media (min-width: 768px) {
+          .desktop-nav {
+            display: flex !important;
+          }
+          .desktop-signout {
+            display: inline !important;
+          }
+          .mobile-menu-button {
+            display: none !important;
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }
