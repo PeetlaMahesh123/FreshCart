@@ -7,9 +7,13 @@ export default defineConfig(({ mode }) => {
   // Set the third parameter to '' to load all ENV regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), '');
 
+  // Set base path based on environment
+  const isProduction = mode === 'production';
+  const base = isProduction ? '/' : '/FreshCart/';
+
   return {
     plugins: [react()],
-    base: '/FreshCart/',
+    base: base,
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
