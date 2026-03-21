@@ -29,10 +29,24 @@ function AppContent() {
   // Loading Screen
   if (loading) {
     return (
-      <div className="min-h-screen gradient-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-4 border-green-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading FreshCart...</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '2rem',
+            height: '2rem',
+            border: '4px solid #10b981',
+            borderTop: '4px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{ color: '#6b7280' }}>Loading FreshCart...</p>
         </div>
       </div>
     );

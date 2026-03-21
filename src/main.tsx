@@ -2,7 +2,6 @@ import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { useAuth } from './contexts/AuthContext';
 import './index.css';
 
 // Enhanced error boundary with detailed error information
@@ -36,38 +35,95 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen gradient-primary flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full bg-white rounded-xl shadow-xl p-8">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚠️</span>
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem'
+        }}>
+          <div style={{
+            maxWidth: '600px',
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: '1rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            padding: '2rem'
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <div style={{
+                width: '4rem',
+                height: '4rem',
+                backgroundColor: '#fef2f2',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1rem'
+              }}>
+                <span style={{ fontSize: '2rem' }}>⚠️</span>
               </div>
-              <h1 className="text-3xl font-bold text-red-600 mb-4">Application Error</h1>
-              <p className="text-gray-600 mb-6">Something went wrong. Please check the console for details.</p>
+              <h1 style={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                color: '#dc2626',
+                marginBottom: '1rem'
+              }}>Application Error</h1>
+              <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+                Something went wrong. Please check the console for details.
+              </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">🔍 Debug Information</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex">
-                  <span className="font-medium text-gray-700 w-32">Error:</span>
-                  <span className="text-red-600 font-mono">{this.state.error?.message || 'Unknown error'}</span>
+            <div style={{
+              backgroundColor: '#f9fafb',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem'
+            }}>
+              <h2 style={{
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                color: '#111827',
+                marginBottom: '0.75rem'
+              }}>🔍 Debug Information</h2>
+              <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+                <div style={{ display: 'flex', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: '500', color: '#374151', width: '80px' }}>Error:</span>
+                  <span style={{ color: '#dc2626', fontFamily: 'monospace' }}>
+                    {this.state.error?.message || 'Unknown error'}
+                  </span>
                 </div>
-                <div className="flex">
-                  <span className="font-medium text-gray-700 w-32">Time:</span>
-                  <span className="text-gray-600">{new Date().toLocaleString()}</span>
+                <div style={{ display: 'flex', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: '500', color: '#374151', width: '80px' }}>Time:</span>
+                  <span style={{ color: '#6b7280' }}>{new Date().toLocaleString()}</span>
                 </div>
-                <div className="flex">
-                  <span className="font-medium text-gray-700 w-32">URL:</span>
-                  <span className="text-gray-600 font-mono">{window.location.href}</span>
+                <div style={{ display: 'flex' }}>
+                  <span style={{ fontWeight: '500', color: '#374151', width: '80px' }}>URL:</span>
+                  <span style={{ color: '#6b7280', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                    {typeof window !== 'undefined' ? window.location.href : 'N/A'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1rem',
+              marginBottom: '1.5rem'
+            }}>
               <button
                 onClick={() => window.location.reload()}
-                className="btn-primary"
+                style={{
+                  background: 'linear-gradient(to right, #059669, #10b981)',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
                 🔄 Reload Application
               </button>
@@ -76,15 +132,38 @@ class ErrorBoundary extends React.Component<
                   console.clear();
                   console.log('🧹 Console cleared. Check for new errors...');
                 }}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                style={{
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
                 🧹 Clear Console
               </button>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-blue-900 mb-2">📋 Quick Fix Steps:</h3>
-              <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+            <div style={{
+              backgroundColor: '#dbeafe',
+              border: '1px solid #93c5fd',
+              borderRadius: '0.5rem',
+              padding: '1rem'
+            }}>
+              <h3 style={{
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                color: '#1e40af',
+                marginBottom: '0.5rem'
+              }}>📋 Quick Fix Steps:</h3>
+              <ol style={{
+                fontSize: '0.875rem',
+                color: '#1e3a8a',
+                marginLeft: '1.5rem',
+                lineHeight: '1.5'
+              }}>
                 <li>Check console for red error messages</li>
                 <li>Look for missing imports</li>
                 <li>Check if all React hooks are imported</li>
