@@ -1,7 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { Cart } from './pages/Cart';
