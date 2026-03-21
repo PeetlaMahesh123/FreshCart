@@ -1,0 +1,68 @@
+/* MAIN */
+.checkout-container {
+  padding: 20px;
+  background: #f3f4f6;
+  min-height: 100vh;
+}
+
+.checkout-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* GRID */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* FORM */
+.checkout-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* SUMMARY */
+.checkout-summary {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.summary-total {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+/* BUTTON */
+.primary-btn {
+  background: #16a34a;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #15803d;
+}

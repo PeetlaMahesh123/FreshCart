@@ -70,8 +70,8 @@ function AppContent() {
       <Route path="/orders" element={<Layout currentPage="orders" onNavigate={handleNavigate}><Orders /></Layout>} />
 
       {/* Auth pages without Layout */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login onNavigate={handleNavigate} />} />
+      <Route path="/register" element={<Register onNavigate={handleNavigate} />} />
 
       {/* Admin */}
       <Route path="/admin" element={<Layout currentPage="admin" onNavigate={handleNavigate}><Admin /></Layout>} />

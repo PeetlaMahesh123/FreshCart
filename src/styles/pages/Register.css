@@ -1,0 +1,99 @@
+/* MAIN */
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2563eb, #10b981);
+}
+
+/* BOX */
+.register-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* CARD */
+.register-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.center {
+  text-align: center;
+}
+
+/* FORM */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.register-form input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* PASSWORD */
+.password-box {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.password-box input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+}
+
+.password-box button {
+  border: none;
+  background: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* BUTTON */
+.register-btn {
+  background: #16a34a;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.register-btn:hover {
+  background: #15803d;
+}
+
+/* ERROR */
+.error-box {
+  background: #fee2e2;
+  color: red;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* BACK */
+.back-btn {
+  margin-bottom: 10px;
+  border: none;
+  background: none;
+  color: white;
+}
+
+/* FOOTER */
+.footer-text {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.footer-text button {
+  border: none;
+  background: none;
+  color: #2563eb;
+}

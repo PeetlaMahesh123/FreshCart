@@ -1,115 +1,89 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, ArrowLeft } from 'lucide-react';
+import { LogIn, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import '../styles/pages/Login.css';
 
-interface LoginProps {
-  onNavigate?: (page: string) => void;
-}
-
-export function Login({ onNavigate }: LoginProps) {
+export function Login({ onNavigate }: any) {
   const { signIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
       const { error } = await signIn(email, password);
-      if (error) {
-        setError(error.message);
-      } else {
-        window.location.href = '/#/home';
-      }
-    } catch (err) {
-      setError('An unexpected error occurred');
+      if (error) setError(error.message);
+      else window.location.href = '/#/home';
+    } catch {
+      setError('Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen gradient-primary flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
-        {/* Back to Home */}
-        <button
-          onClick={() => window.location.href = '/#/home'}
-          className="mb-6 flex items-center text-gray-600 hover:text-green-600 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
+    <div className="login-container">
+
+      <div className="login-box">
+
+        <button onClick={() => onNavigate?.('home')} className="back-btn">
+          <ArrowLeft size={16} /> Back
         </button>
 
-        <div className="bg-white rounded-xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your FreshCart account</p>
+        <div className="login-card">
+
+          <div className="login-header">
+            <LogIn size={28} />
+            <h2>Welcome Back</h2>
+            <p>Sign in to your account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+          {error && <div className="error-box">{error}</div>}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="login-form">
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <div className="password-box">
               <input
-                id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your password"
-                required
               />
-            </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-primary"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
+              <button type="button" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+
+            <button type="submit" className="login-btn">
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <button
-                onClick={() => window.location.href = '/#/register'}
-                className="font-medium text-green-600 hover:text-green-500"
-              >
-                Sign up
-              </button>
+          <div className="login-footer">
+            <p>
+              Don’t have an account?
+              <button onClick={() => onNavigate?.('register')}> Sign up</button>
             </p>
           </div>
+
         </div>
+
       </div>
     </div>
   );

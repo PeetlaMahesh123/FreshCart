@@ -1,0 +1,101 @@
+/* MAIN CONTAINER */
+.admin-container {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* HEADER */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-header h1 {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.admin-header button {
+  background: #16a34a;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* BODY */
+.admin-body {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: 200px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.sidebar-btn:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-btn.active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* CONTENT */
+.admin-content {
+  flex: 1;
+}
+
+/* ACCESS DENIED */
+.admin-denied {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.denied-box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.denied-box h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.denied-box button {
+  background: #16a34a;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}

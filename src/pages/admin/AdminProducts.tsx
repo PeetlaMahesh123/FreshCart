@@ -1,375 +1,275 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Plus, CreditCard as Edit, Trash2, Search } from 'lucide-react';
-
-interface Product {
-  id: string;
-  category_id: string | null;
-  name: string;
-  description: string | null;
-  price: number;
-  discount_price: number | null;
-  image_url: string | null;
-  stock: number;
-  unit: string;
-  ratings: number;
-  is_active: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
+import { Plus, Edit, Trash2 } from 'lucide-react';
+import '../../styles/pages/AdminProducts.css';
 
 export function AdminProducts() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // 🔹 Fetch data
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const [productsRes, categoriesRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('categories').select('id, name'),
-      ]);
+    setLoading(true);
 
-      if (productsRes.data) setProducts(productsRes.data);
-      if (categoriesRes.data) setCategories(categoriesRes.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
+    const { data: productData, error: pError } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const { data: categoryData, error: cError } = await supabase
+      .from('categories')
+      .select('id, name');
+
+    if (pError) console.error(pError);
+    if (cError) console.error(cError);
+
+    setProducts(productData || []);
+    setCategories(categoryData || []);
+    setLoading(false);
   };
 
+  // 🔥 ✅ FIXED DELETE FUNCTION
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm('Delete product?')) return;
 
     try {
-      console.log('=== DELETE DEBUG INFO ===');
-      console.log('Product ID to delete:', id);
-      
-      // Check current user and role
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user?.id);
-      
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, email')
-        .eq('id', user?.id)
-        .single();
-      console.log('User profile:', profile);
-      
-      // Attempt deletion with detailed logging
-      console.log('Attempting deletion...');
-      const { error, data } = await supabase.from('products').delete().eq('id', id).select();
-      
-      console.log('Delete response:', { error, data });
-      
-      if (error) {
-        console.error('Delete error details:', error);
-        throw error;
+      // 🔴 Step 1: delete from cart_items
+      const { error: cartError } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('product_id', id);
+
+      if (cartError) {
+        console.error(cartError);
+        alert("❌ Failed to delete from cart_items");
+        return;
       }
-      
-      console.log('Delete successful!');
-      await fetchData();
-      
-      // Show success message
-      alert('Product deleted successfully!');
-    } catch (error) {
-      console.error('=== DELETE FAILED ===');
-      console.error('Full error:', error);
-      alert(`Failed to delete product: ${error instanceof Error ? error.message : 'Unknown error'}\nCheck browser console for details.`);
+
+      // 🔴 Step 2: delete from order_items
+      const { error: orderError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('product_id', id);
+
+      if (orderError) {
+        console.error(orderError);
+        alert("❌ Failed to delete from order_items");
+        return;
+      }
+
+      // 🟢 Step 3: delete from products
+      const { error: productError } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (productError) {
+        console.error(productError);
+        alert("❌ Failed to delete product");
+        return;
+      }
+
+      alert("✅ Product deleted successfully");
+
+      // 🔄 Refresh data
+      fetchData();
+
+    } catch (err) {
+      console.error("Unexpected error:", err);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 🔹 Submit (Add / Update)
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!editingProduct) return;
 
     try {
       if (isAdding) {
-        const { error } = await supabase.from('products').insert({
-          ...editingProduct,
-          id: undefined,
-        });
+        const { error } = await supabase
+          .from('products')
+          .insert([editingProduct]);
+
         if (error) throw error;
+
       } else {
         const { error } = await supabase
           .from('products')
           .update(editingProduct)
           .eq('id', editingProduct.id);
+
         if (error) throw error;
       }
+
+      alert("✅ Saved successfully");
+
       setEditingProduct(null);
       setIsAdding(false);
-      await fetchData();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      alert('Failed to save product');
+      fetchData();
+
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error saving product");
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Products Management</h1>
+    <div className="admin-products-container">
+
+      {/* HEADER */}
+      <div className="admin-header">
+        <h1>Admin Products</h1>
+
         <button
+          className="add-btn"
           onClick={() => {
             setIsAdding(true);
             setEditingProduct({
-              id: '',
-              category_id: null,
               name: '',
-              description: '',
               price: 0,
-              discount_price: null,
-              image_url: '',
               stock: 0,
+              image_url: '',
+              category_id: '',
               unit: 'kg',
-              ratings: 0,
+              ratings: 4,
               is_active: true,
             });
           }}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 flex items-center space-x-2"
         >
-          <Plus className="h-5 w-5" />
-          <span>Add Product</span>
+          <Plus size={18} /> Add Product
         </button>
       </div>
 
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-        </div>
-      </div>
+      {/* LOADING */}
+      {loading && <p>Loading...</p>}
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={product.image_url || 'https://images.pexels.com/photos/1435904/pexels-photo-1435904.jpeg?auto=compress&cs=tinysrgb&w=100'}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded-lg"
-                      />
-                      <div>
-                        <p className="font-medium text-gray-900">{product.name}</p>
-                        <p className="text-sm text-gray-500">{product.unit}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm">
-                      <p className="font-semibold text-gray-900">₹{product.discount_price || product.price}</p>
-                      {product.discount_price && (
-                        <p className="text-xs text-gray-400 line-through">₹{product.price}</p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{product.ratings.toFixed(1)} ⭐</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => {
-                          setIsAdding(false);
-                          setEditingProduct(product);
-                        }}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* TABLE */}
+      <div className="products-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-      {editingProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-2xl w-full p-6 my-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {isAdding ? 'Add Product' : 'Edit Product'}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                  <input
-                    type="text"
-                    value={editingProduct.name}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
+          <tbody>
+            {products.map((p) => (
+              <tr key={p.id}>
+                <td>
+                  <img
+                    src={p.image_url || "https://via.placeholder.com/80"}
+                    alt={p.name}
+                    className="table-img"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/80";
+                    }}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select
-                    value={editingProduct.category_id || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, category_id: e.target.value || null })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                </td>
+
+                <td>{p.name}</td>
+                <td>₹{p.price}</td>
+                <td>{p.stock}</td>
+
+                <td className="actions">
+                  <button
+                    onClick={() => {
+                      setEditingProduct(p);
+                      setIsAdding(false);
+                    }}
                   >
-                    <option value="">Select Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea
-                  value={editingProduct.description || ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  rows={3}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Discount Price</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editingProduct.discount_price || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, discount_price: e.target.value ? Number(e.target.value) : null })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
-                  <input
-                    type="text"
-                    value={editingProduct.unit}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, unit: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
-                  <input
-                    type="number"
-                    value={editingProduct.stock}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    value={editingProduct.image_url || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, image_url: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={editingProduct.is_active}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, is_active: e.target.checked })}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Active</span>
-                </label>
-              </div>
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700"
-                >
-                  {isAdding ? 'Add Product' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingProduct(null);
-                    setIsAdding(false);
-                  }}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+                    <Edit size={16} />
+                  </button>
+
+                  <button onClick={() => handleDelete(p.id)}>
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* FORM */}
+      {editingProduct && (
+        <form onSubmit={handleSubmit} className="product-form">
+
+          <h2>{isAdding ? "Add Product" : "Edit Product"}</h2>
+
+          <img
+            src={editingProduct.image_url || "https://via.placeholder.com/100"}
+            className="preview-img"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/100";
+            }}
+          />
+
+          <input
+            placeholder="Product Name"
+            value={editingProduct.name}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, name: e.target.value })
+            }
+          />
+
+          <input
+            type="number"
+            placeholder="Price"
+            value={editingProduct.price}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, price: Number(e.target.value) })
+            }
+          />
+
+          <input
+            type="number"
+            placeholder="Stock"
+            value={editingProduct.stock}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })
+            }
+          />
+
+          <input
+            placeholder="Image URL"
+            value={editingProduct.image_url}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, image_url: e.target.value })
+            }
+          />
+
+          <select
+            value={editingProduct.category_id}
+            onChange={(e) =>
+              setEditingProduct({ ...editingProduct, category_id: e.target.value })
+            }
+          >
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+
+          <button type="submit" className="submit-btn">
+            {isAdding ? "Add Product" : "Update Product"}
+          </button>
+
+        </form>
       )}
+
     </div>
   );
 }

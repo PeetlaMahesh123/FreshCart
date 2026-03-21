@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Users, ShoppingBag, Package, DollarSign, TrendingUp, Calendar } from 'lucide-react';
+import '../../styles/pages/AdminDashboard.css';
 
 export function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -12,6 +13,7 @@ export function AdminDashboard() {
     monthlyRevenue: 0,
     yearlyRevenue: 0,
   });
+
   const [loading, setLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
@@ -31,21 +33,25 @@ export function AdminDashboard() {
       const totalProducts = productsRes.count || 0;
       const orders = ordersRes.data || [];
 
-      const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
+      const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount, 0);
       const totalOrders = orders.length;
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const dailyOrders = orders.filter(o => new Date(o.created_at) >= today);
-      const dailyRevenue = dailyOrders.reduce((sum, order) => sum + order.total_amount, 0);
+
+      const dailyRevenue = orders
+        .filter(o => new Date(o.created_at) >= today)
+        .reduce((sum, o) => sum + o.total_amount, 0);
 
       const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const monthlyOrders = orders.filter(o => new Date(o.created_at) >= thisMonth);
-      const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + order.total_amount, 0);
+      const monthlyRevenue = orders
+        .filter(o => new Date(o.created_at) >= thisMonth)
+        .reduce((sum, o) => sum + o.total_amount, 0);
 
       const thisYear = new Date(today.getFullYear(), 0, 1);
-      const yearlyOrders = orders.filter(o => new Date(o.created_at) >= thisYear);
-      const yearlyRevenue = yearlyOrders.reduce((sum, order) => sum + order.total_amount, 0);
+      const yearlyRevenue = orders
+        .filter(o => new Date(o.created_at) >= thisYear)
+        .reduce((sum, o) => sum + o.total_amount, 0);
 
       const { data: recentOrdersData } = await supabase
         .from('orders')
@@ -64,146 +70,116 @@ export function AdminDashboard() {
       });
 
       setRecentOrders(recentOrdersData || []);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
+    return <div className="loader"></div>;
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+    <div className="dashboard-container">
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
+      <h1 className="dashboard-title">Admin Dashboard</h1>
+
+      {/* STATS */}
+      <div className="dashboard-grid">
+
+        <div className="dashboard-card">
+          <div className="card-content">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
+              <p className="label">Users</p>
+              <h2>{stats.totalUsers}</h2>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
+            <div className="icon-box blue"><Users size={20} /></div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
+        <div className="dashboard-card">
+          <div className="card-content">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Orders</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+              <p className="label">Orders</p>
+              <h2>{stats.totalOrders}</h2>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <ShoppingBag className="h-6 w-6 text-green-600" />
-            </div>
+            <div className="icon-box green"><ShoppingBag size={20} /></div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
+        <div className="dashboard-card">
+          <div className="card-content">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Products</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalProducts}</p>
+              <p className="label">Products</p>
+              <h2>{stats.totalProducts}</h2>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <Package className="h-6 w-6 text-orange-600" />
-            </div>
+            <div className="icon-box orange"><Package size={20} /></div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
+        <div className="dashboard-card">
+          <div className="card-content">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900">₹{stats.totalRevenue.toFixed(0)}</p>
+              <p className="label">Revenue</p>
+              <h2>₹{stats.totalRevenue.toFixed(0)}</h2>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-red-600" />
-            </div>
+            <div className="icon-box red"><DollarSign size={20} /></div>
           </div>
         </div>
+
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white">
-          <div className="flex items-center space-x-3 mb-2">
-            <Calendar className="h-5 w-5" />
-            <p className="text-sm opacity-90">Daily Revenue</p>
-          </div>
-          <p className="text-3xl font-bold">₹{stats.dailyRevenue.toFixed(2)}</p>
+      {/* REVENUE */}
+      <div className="revenue-grid">
+
+        <div className="revenue-card blue">
+          <p>Daily</p>
+          <h2>₹{stats.dailyRevenue.toFixed(2)}</h2>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white">
-          <div className="flex items-center space-x-3 mb-2">
-            <TrendingUp className="h-5 w-5" />
-            <p className="text-sm opacity-90">Monthly Revenue</p>
-          </div>
-          <p className="text-3xl font-bold">₹{stats.monthlyRevenue.toFixed(2)}</p>
+        <div className="revenue-card green">
+          <p>Monthly</p>
+          <h2>₹{stats.monthlyRevenue.toFixed(2)}</h2>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-md p-6 text-white">
-          <div className="flex items-center space-x-3 mb-2">
-            <TrendingUp className="h-5 w-5" />
-            <p className="text-sm opacity-90">Yearly Revenue</p>
-          </div>
-          <p className="text-3xl font-bold">₹{stats.yearlyRevenue.toFixed(2)}</p>
+        <div className="revenue-card orange">
+          <p>Yearly</p>
+          <h2>₹{stats.yearlyRevenue.toFixed(2)}</h2>
         </div>
+
       </div>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+      {/* TABLE */}
+      <div className="dashboard-table">
+        <h2>Recent Orders</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {recentOrders.map(o => (
+              <tr key={o.id}>
+                <td>{o.id.slice(0, 6)}</td>
+                <td>{o.profiles?.full_name}</td>
+                <td>₹{o.total_amount}</td>
+                <td><span className={`status ${o.status}`}>{o.status}</span></td>
+                <td>{new Date(o.created_at).toLocaleDateString()}</td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-mono text-gray-900">{order.id.slice(0, 8)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {order.profiles?.full_name || 'N/A'}
-                    <br />
-                    <span className="text-xs text-gray-500">{order.profiles?.email}</span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">₹{order.total_amount.toFixed(2)}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                      order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                      order.status === 'confirmed' ? 'bg-orange-100 text-orange-800' :
-                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(order.created_at).toLocaleDateString('en-IN')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
+
     </div>
   );
 }

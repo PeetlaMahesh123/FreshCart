@@ -1,38 +1,32 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UserPlus, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import '../styles/pages/Register.css';
 
-interface RegisterProps {
-  onNavigate?: (page: string) => void;
-}
-
-export function Register({ onNavigate }: RegisterProps) {
+export function Register({ onNavigate }: any) {
   const { signUp } = useAuth();
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'user'
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -42,36 +36,27 @@ export function Register({ onNavigate }: RegisterProps) {
         formData.email,
         formData.password,
         formData.fullName,
-        formData.phone || undefined,
-        formData.role
+        formData.phone
       );
-      if (error) {
-        setError(error.message);
-      } else {
-        setRegistrationSuccess(true);
-      }
+
+      if (error) setError(error.message);
+      else setSuccess(true);
+
     } catch {
-      setError('An unexpected error occurred');
-    } finally {
-      setLoading(false);
+      setError("Something went wrong");
     }
+
+    setLoading(false);
   };
 
-  if (registrationSuccess) {
+  if (success) {
     return (
-      <div className="min-h-screen gradient-primary flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-xl p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <UserPlus className="h-8 w-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
-          <p className="text-gray-600 mb-6">
-            Please check your email to verify your account before signing in.
-          </p>
-          <button
-            onClick={() => window.location.href = '/#/login'}
-            className="btn-primary"
-          >
+      <div className="register-container">
+        <div className="register-card center">
+          <h2>Registration Successful 🎉</h2>
+          <p>Please check your email to verify your account</p>
+
+          <button onClick={() => onNavigate?.('login')}>
             Go to Login
           </button>
         </div>
@@ -80,128 +65,84 @@ export function Register({ onNavigate }: RegisterProps) {
   }
 
   return (
-    <div className="min-h-screen gradient-primary flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
-        {/* Back to Home */}
-        <button
-          onClick={() => window.location.href = '/#/home'}
-          className="mb-6 flex items-center text-gray-600 hover:text-green-600 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
+    <div className="register-container">
+
+      <div className="register-box">
+
+        <button onClick={() => onNavigate?.('home')} className="back-btn">
+          <ArrowLeft size={16} /> Back
         </button>
 
-        <div className="bg-white rounded-xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-600">Join FreshCart today</p>
-          </div>
+        <div className="register-card">
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+          <h1>Create Account</h1>
 
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
+          {error && <div className="error-box">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="register-form">
+
+            <input
+              placeholder="Full Name"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            />
+
+            <input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+
+            <input
+              placeholder="Phone"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+
+            {/* PASSWORD */}
+            <div className="password-box">
               <input
-                id="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone (optional)
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your phone number"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Create a password"
-                required
               />
+
+              <button type="button" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
+            {/* CONFIRM PASSWORD */}
+            <div className="password-box">
               <input
-                id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Confirm your password"
-                required
               />
-            </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-primary"
-              >
-                {loading ? 'Creating account...' : 'Create Account'}
+              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+
+            <button className="register-btn">
+              {loading ? "Creating..." : "Create Account"}
+            </button>
+
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <button
-                onClick={() => window.location.href = '/#/login'}
-                className="font-medium text-green-600 hover:text-green-500"
-              >
-                Sign in
-              </button>
-            </p>
-          </div>
+          <p className="footer-text">
+            Already have an account?
+            <button onClick={() => onNavigate?.('login')}> Login</button>
+          </p>
+
         </div>
+
       </div>
+
     </div>
   );
 }

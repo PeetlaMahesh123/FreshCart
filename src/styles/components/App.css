@@ -1,0 +1,28 @@
+/* LOADING SCREEN */
+.app-loading {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2563eb, #10b981);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-box {
+  text-align: center;
+  color: white;
+}
+
+/* SPINNER */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid white;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  margin: auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
