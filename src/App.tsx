@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { Cart } from './pages/Cart';
@@ -31,22 +32,24 @@ function AppContent() {
     <HashRouter>
       <Routes>
         {/* IMPORTANT: Show Home directly on root path */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Layout currentPage="home"><Home /></Layout>} />
         
-        {/* Main Pages */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:category" element={<Products />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
+        {/* Main Pages with Layout */}
+        <Route path="/home" element={<Layout currentPage="home"><Home /></Layout>} />
+        <Route path="/products" element={<Layout currentPage="products"><Products /></Layout>} />
+        <Route path="/products/:category" element={<Layout currentPage="products"><Products /></Layout>} />
+        <Route path="/cart" element={<Layout currentPage="cart"><Cart /></Layout>} />
+        <Route path="/checkout" element={<Layout currentPage="checkout"><Checkout /></Layout>} />
+        <Route path="/profile" element={<Layout currentPage="profile"><Profile /></Layout>} />
+        <Route path="/orders" element={<Layout currentPage="orders"><Orders /></Layout>} />
+
+        {/* Auth pages without Layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<Orders />} />
 
         {/* Admin */}
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/*" element={<Admin />} />
+        <Route path="/admin" element={<Layout currentPage="admin"><Admin /></Layout>} />
+        <Route path="/admin/*" element={<Layout currentPage="admin"><Admin /></Layout>} />
 
         {/* Auth */}
         <Route path="/auth/callback" element={<AuthCallback />} />
