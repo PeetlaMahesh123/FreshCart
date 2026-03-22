@@ -11,6 +11,7 @@ FreshCart is a modern full-stack e-commerce web application built using **React,
 ---
 
 <img width="1923" height="791" alt="image" src="https://github.com/user-attachments/assets/e9444e9b-085c-417e-a19e-ece9cc1416c2" />
+<img width="1923" height="865" alt="image" src="https://github.com/user-attachments/assets/ffea0fe3-b33d-454d-8da9-2e42a4053bae" />
 <img width="1917" height="787" alt="image" src="https://github.com/user-attachments/assets/d9f832f5-4c1c-4c7d-aaed-ec44ae1ee946" />
 <img width="1910" height="754" alt="image" src="https://github.com/user-attachments/assets/67b58ecb-6108-4b45-b982-73de3546d8fe" />
 <img width="1923" height="869" alt="image" src="https://github.com/user-attachments/assets/17eb0d04-2a09-43b5-b2f2-9ed0e0937765" />
@@ -19,7 +20,7 @@ FreshCart is a modern full-stack e-commerce web application built using **React,
 <img width="1923" height="824" alt="image" src="https://github.com/user-attachments/assets/60880856-b1fd-4dd4-842b-0110769c257b" />
 <img width="1923" height="818" alt="image" src="https://github.com/user-attachments/assets/968a6b4a-8adc-4ac4-aaef-bcb1791f03b2" />
 <img width="1923" height="746" alt="image" src="https://github.com/user-attachments/assets/9bc36a28-9dfb-47f1-a401-1329c44c8733" />
-<img width="1923" height="865" alt="image" src="https://github.com/user-attachments/assets/ffea0fe3-b33d-454d-8da9-2e42a4053bae" />
+
 
 ---
 ## 📌 Features
