@@ -1,16 +1,8 @@
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-/* MAIN */
+/* CONTAINER */
 .orders-container {
+  max-width: 900px;
+  margin: 30px auto;
   padding: 20px;
-  background: #f3f4f6;
-  min-height: 100vh;
 }
 
 /* TITLE */
@@ -23,8 +15,14 @@
 /* EMPTY */
 .orders-empty {
   text-align: center;
-  padding: 50px;
+  padding: 40px;
   color: #555;
+}
+
+/* LOADING */
+.orders-loading {
+  text-align: center;
+  padding: 100px;
 }
 
 /* LIST */
@@ -37,7 +35,7 @@
 /* CARD */
 .order-card {
   background: white;
-  padding: 18px;
+  padding: 20px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
   transition: 0.3s;
@@ -49,38 +47,18 @@
 
 /* HEADER */
 .order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 8px;
+  margin-bottom: 15px;
 }
 
-/* ORDER INFO */
 .order-id {
   font-size: 13px;
-  color: #6b7280;
+  color: #555;
 }
 
-.order-total {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-/* STATUS BADGE */
-.order-status {
+.order-date {
   font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-weight: 500;
+  color: #888;
 }
-
-.order-status.pending { background: #fef9c3; }
-.order-status.confirmed { background: #ffedd5; }
-.order-status.shipped { background: #dbeafe; }
-.order-status.delivered { background: #dcfce7; }
-.order-status.cancelled { background: #fee2e2; }
 
 /* ITEMS */
 .order-items {
@@ -92,25 +70,33 @@
 /* ITEM */
 .order-item {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 15px;
+}
+
+/* IMAGE BOX (IMPORTANT 🔥) */
+.order-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* IMAGE */
-.order-item img {
-  width: 60px;
-  height: 60px;
-  border-radius: 10px;
-  object-fit: cover;
+.order-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 🔥 SAME SIZE FOR ALL */
 }
 
 /* INFO */
-.item-info {
+.order-info {
   flex: 1;
 }
 
 .item-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
 }
 
@@ -121,17 +107,8 @@
 
 /* PRICE */
 .item-price {
-  font-weight: 600;
+  font-weight: bold;
   font-size: 14px;
-}
-
-/* ========================= */
-/* 📱 TABLET */
-/* ========================= */
-@media (max-width: 1024px) {
-  .orders-title {
-    font-size: 22px;
-  }
 }
 
 /* ========================= */
@@ -140,15 +117,6 @@
 @media (max-width: 768px) {
   .orders-container {
     padding: 15px;
-  }
-
-  .orders-title {
-    font-size: 20px;
-  }
-
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .order-item {
@@ -164,26 +132,12 @@
     flex-direction: column;
   }
 
-  .order-item img {
+  .order-img {
     width: 100%;
-    height: auto;
-  }
-
-  .item-name {
-    font-size: 13px;
+    height: 150px;
   }
 
   .item-price {
-    font-size: 13px;
-  }
-}
-
-/* ========================= */
-/* 💻 LARGE SCREENS */
-/* ========================= */
-@media (min-width: 1200px) {
-  .orders-container {
-    max-width: 1000px;
-    margin: auto;
+    align-self: flex-end;
   }
 }

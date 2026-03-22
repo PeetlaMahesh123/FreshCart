@@ -9,8 +9,7 @@ import {
   X,
   Home,
   ShoppingBag,
-  FileText,
-  Users
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -30,6 +29,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const handleSignOut = async () => {
     await signOut();
     onNavigate('home');
+    setMobileMenuOpen(false);
   };
 
   const isActive = (page: string) => currentPage === page;
@@ -37,9 +37,6 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const navigation = [
     { name: 'Home', page: 'home', icon: Home },
     { name: 'Products', page: 'products', icon: ShoppingBag },
-    { name: 'Cart', page: 'cart', icon: ShoppingCart },
-    { name: 'Orders', page: 'orders', icon: FileText },
-    { name: 'Profile', page: 'profile', icon: User },
   ];
 
   return (
@@ -48,6 +45,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
       {/* HEADER */}
       <header className="header">
 
+        {/* LOGO */}
         <div className="logo" onClick={() => onNavigate('home')}>
           <Package size={24} />
           <span>FreshCart</span>
@@ -67,13 +65,31 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
                   >
                     <Icon size={16} />
                     {item.name}
-                    {item.page === 'cart' && cartCount > 0 && (
-                      <span className="badge">{cartCount}</span>
-                    )}
                   </button>
                 );
               })}
 
+              {/* CART */}
+              <button
+                className="nav-btn"
+                onClick={() => onNavigate('cart')}
+              >
+                <ShoppingCart size={16} />
+                Cart
+                {cartCount > 0 && <span className="badge">{cartCount}</span>}
+              </button>
+
+              {/* ORDERS */}
+              <button className="nav-btn" onClick={() => onNavigate('orders')}>
+                <FileText size={16} /> Orders
+              </button>
+
+              {/* PROFILE */}
+              <button className="nav-btn" onClick={() => onNavigate('profile')}>
+                <User size={16} /> Profile
+              </button>
+
+              {/* ADMIN */}
               {profile?.role === 'admin' && (
                 <button
                   className="nav-btn"
@@ -83,6 +99,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
                 </button>
               )}
 
+              {/* LOGOUT */}
               <button className="logout-btn" onClick={handleSignOut}>
                 <LogOut size={16} /> Logout
               </button>
@@ -99,7 +116,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
           )}
         </nav>
 
-        {/* MOBILE */}
+        {/* MOBILE MENU BUTTON */}
         <button
           className="menu-btn"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -109,23 +126,59 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
       </header>
 
-      {/* MOBILE MENU */}
+      {/* ================= MOBILE MENU ================= */}
       {mobileMenuOpen && (
         <div className="mobile-menu">
-          {navigation.map(item => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                onClick={() => {
-                  onNavigate(item.page);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <Icon size={16} /> {item.name}
+
+          {/* COMMON */}
+          <button onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}>
+            <Home size={16} /> Home
+          </button>
+
+          <button onClick={() => { onNavigate('products'); setMobileMenuOpen(false); }}>
+            <ShoppingBag size={16} /> Products
+          </button>
+
+          {/* NOT LOGGED IN */}
+          {!user && (
+            <>
+              <button onClick={() => { onNavigate('login'); setMobileMenuOpen(false); }}>
+                Login
               </button>
-            );
-          })}
+
+              <button onClick={() => { onNavigate('register'); setMobileMenuOpen(false); }}>
+                Register
+              </button>
+            </>
+          )}
+
+          {/* LOGGED IN */}
+          {user && (
+            <>
+              <button onClick={() => { onNavigate('cart'); setMobileMenuOpen(false); }}>
+                <ShoppingCart size={16} /> Cart ({cartCount})
+              </button>
+
+              <button onClick={() => { onNavigate('orders'); setMobileMenuOpen(false); }}>
+                <FileText size={16} /> Orders
+              </button>
+
+              <button onClick={() => { onNavigate('profile'); setMobileMenuOpen(false); }}>
+                <User size={16} /> Profile
+              </button>
+
+              {profile?.role === 'admin' && (
+                <button onClick={() => { onNavigate('admin'); setMobileMenuOpen(false); }}>
+                  <LayoutDashboard size={16} /> Admin
+                </button>
+              )}
+
+              <button onClick={handleSignOut}>
+                <LogOut size={16} /> Logout
+              </button>
+            </>
+          )}
+
         </div>
       )}
 
@@ -136,7 +189,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2024 FreshCart. All rights reserved.</p>
+        <p>© 2026 FreshCart. All rights reserved.</p>
       </footer>
 
     </div>
