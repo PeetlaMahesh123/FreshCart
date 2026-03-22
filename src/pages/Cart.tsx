@@ -1,18 +1,22 @@
 import { useCart } from '../contexts/CartContext';
 import { Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/pages/Cart.css';
 
-export function Cart({ onNavigate }: any) {
+export function Cart() {
+  const navigate = useNavigate();
+
   const { cartItems, cartTotal, updateCartItem, removeFromCart } = useCart();
 
   if (cartItems.length === 0) {
-    return <div>Your cart is empty</div>;
+    return <div className="cart-container">Your cart is empty</div>;
   }
 
   return (
     <div className="cart-container">
 
-      <button onClick={() => onNavigate?.('home')}>
+      {/* Back */}
+      <button onClick={() => navigate('/')}>
         <ArrowLeft size={16} /> Back
       </button>
 
@@ -22,30 +26,29 @@ export function Cart({ onNavigate }: any) {
         return (
           <div key={item.id} className="cart-item">
 
-            {/* ✅ FIXED IMAGE */}
             <img
               src={item.product.image_url || "https://via.placeholder.com/100"}
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/100";
-              }}
+              alt={item.product.name}
             />
 
             <div>
               <h3>{item.product.name}</h3>
 
-              <button onClick={() => updateCartItem(item.id, item.quantity - 1)}>
-                <Minus size={14} />
-              </button>
+              <div className="qty-controls">
+                <button onClick={() => updateCartItem(item.id, item.quantity - 1)}>
+                  <Minus size={14} />
+                </button>
 
-              {item.quantity}
+                <span>{item.quantity}</span>
 
-              <button onClick={() => updateCartItem(item.id, item.quantity + 1)}>
-                <Plus size={14} />
-              </button>
+                <button onClick={() => updateCartItem(item.id, item.quantity + 1)}>
+                  <Plus size={14} />
+                </button>
 
-              <button onClick={() => removeFromCart(item.id)}>
-                <Trash2 size={16} />
-              </button>
+                <button onClick={() => removeFromCart(item.id)}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
 
             <p>₹{price * item.quantity}</p>
@@ -56,7 +59,11 @@ export function Cart({ onNavigate }: any) {
 
       <h2>Total: ₹{cartTotal}</h2>
 
-      <button onClick={() => onNavigate?.('checkout')}>
+      {/* ✅ FIXED BUTTON */}
+      <button
+        className="checkout-btn"
+        onClick={() => navigate('/checkout')}
+      >
         Checkout
       </button>
 

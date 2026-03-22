@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import '../styles/pages/Checkout.css';
 
 declare global {
@@ -10,46 +11,18 @@ declare global {
   }
 }
 
-export function Checkout({ onNavigate }: any) {
+export function Checkout() {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { cartItems, cartTotal, clearCart } = useCart();
 
   const [loading, setLoading] = useState(false);
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: profile?.full_name || '',
     phone: profile?.phone || '',
     address: profile?.address || '',
   });
-
-  // ✅ Load Razorpay script + checks
-  useEffect(() => {
-    if (!user) {
-      onNavigate?.('login');
-      return;
-    }
-
-    if (cartItems.length === 0) {
-      onNavigate?.('cart');
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-
-    script.onload = () => {
-      console.log('✅ Razorpay Loaded');
-      setRazorpayLoaded(true);
-    };
-
-    script.onerror = () => {
-      alert('❌ Failed to load Razorpay');
-    };
-
-    document.body.appendChild(script);
-  }, [user, cartItems]);
 
   const deliveryFee = cartTotal >= 500 ? 0 : 40;
   const totalAmount = cartTotal + deliveryFee;
@@ -58,58 +31,47 @@ export function Checkout({ onNavigate }: any) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Create order in DB
+  /* ✅ Create Order */
   const createOrder = async () => {
     if (!user) return;
 
-    try {
-      const { data: order, error } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: totalAmount,
-          shipping_address: formData.address,
-          phone: formData.phone,
-          status: 'confirmed',
-        })
-        .select()
-        .single();
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert({
+        user_id: user.id,
+        total_amount: totalAmount,
+        shipping_address: formData.address,
+        phone: formData.phone,
+        status: 'confirmed',
+      })
+      .select()
+      .single();
 
-      if (error || !order) {
-        console.error(error);
-        alert("❌ Order creation failed");
-        return;
-      }
-
-      const items = cartItems.map((item: any) => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
-
-      await supabase.from('order_items').insert(items);
-
-      await clearCart();
-      alert("✅ Order placed successfully");
-
-      onNavigate?.('orders');
-
-    } catch (err) {
-      console.error(err);
-      alert("❌ Something went wrong");
-    }
-  };
-
-  // ✅ Handle Payment
-  const handlePayment = () => {
-    if (!razorpayLoaded || !window.Razorpay) {
-      alert("Payment system loading... try again");
+    if (error || !order) {
+      alert("Order failed");
       return;
     }
 
-    if (!user) {
-      alert("Login required");
+    const items = cartItems.map((item: any) => ({
+      order_id: order.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+
+    await supabase.from('order_items').insert(items);
+
+    await clearCart();
+    alert("Order placed successfully");
+    navigate('/orders');
+  };
+
+  /* ✅ FINAL PAYMENT FUNCTION */
+  const handlePayment = () => {
+    console.log("PAY CLICKED");
+
+    if (!window.Razorpay) {
+      alert("Razorpay not loaded");
       return;
     }
 
@@ -120,27 +82,27 @@ export function Checkout({ onNavigate }: any) {
 
     const key = import.meta.env.VITE_RAZORPAY_KEY;
 
+    console.log("KEY:", key);
+
     if (!key) {
-      alert("❌ Razorpay key missing in .env");
+      alert("Razorpay key missing");
       return;
     }
 
-    setLoading(true);
-
     const options = {
-      key,
+      key: key,
       amount: totalAmount * 100,
       currency: "INR",
       name: "FreshCart",
+      description: "Order Payment",
 
-      handler: async () => {
+      handler: async function () {
         await createOrder();
-        setLoading(false);
       },
 
       prefill: {
         name: formData.fullName,
-        email: profile?.email,
+        email: profile?.email || '',
         contact: formData.phone,
       },
 
@@ -160,7 +122,6 @@ export function Checkout({ onNavigate }: any) {
 
       {/* FORM */}
       <div className="checkout-form">
-
         <input
           name="fullName"
           value={formData.fullName}
@@ -172,21 +133,19 @@ export function Checkout({ onNavigate }: any) {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          placeholder="Phone"
+          placeholder="Phone Number"
         />
 
         <textarea
           name="address"
           value={formData.address}
           onChange={handleChange}
-          placeholder="Address"
+          placeholder="Delivery Address"
         />
-
       </div>
 
       {/* SUMMARY */}
       <div className="checkout-summary">
-
         <h2>Order Summary</h2>
 
         {cartItems.map((item: any) => (
@@ -197,13 +156,14 @@ export function Checkout({ onNavigate }: any) {
         ))}
 
         <div className="summary-total">
-          Total: ₹{totalAmount.toFixed(2)}
+          <span>Total</span>
+          <span>₹{totalAmount}</span>
         </div>
 
+        {/* ✅ BUTTON FIXED */}
         <button onClick={handlePayment} className="primary-btn">
           {loading ? "Processing..." : `Pay ₹${totalAmount}`}
         </button>
-
       </div>
 
     </div>

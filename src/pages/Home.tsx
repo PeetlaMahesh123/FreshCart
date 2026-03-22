@@ -3,9 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../lib/supabase';
 import { ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/pages/Home.css';
 
-export function Home({ onNavigate }: any) {
+export function Home() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useCart();
 
@@ -33,13 +35,11 @@ export function Home({ onNavigate }: any) {
   }, []);
 
   const handleAddToCart = async (id: string) => {
-    if (!user) return onNavigate?.('login');
+    if (!user) return navigate('/login');
     await addToCart(id, 1);
   };
 
-  if (loading) {
-    return <div className="loader">Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="home-container">
@@ -48,7 +48,7 @@ export function Home({ onNavigate }: any) {
       <div className="hero">
         <h1>FreshCart</h1>
         <p>Fresh & Fast Delivery</p>
-        <button onClick={() => onNavigate?.('products')}>
+        <button onClick={() => navigate('/products')}>
           Shop Now
         </button>
       </div>
@@ -62,10 +62,11 @@ export function Home({ onNavigate }: any) {
             <div
               key={cat.id}
               className="category-card"
-              onClick={() => onNavigate?.('products', { category: cat.slug })}
+              onClick={() => navigate(`/products/${cat.slug}`)}  // ✅ FIXED
             >
-              <img src={cat.image_url} />
-              <p>{cat.name}</p>
+              <div className="category-placeholder">
+                {cat.name}
+              </div>
             </div>
           ))}
         </div>
@@ -79,11 +80,13 @@ export function Home({ onNavigate }: any) {
           {products.map(p => (
             <div key={p.id} className="product-card">
 
-              <img src={p.image_url} />
+              <img
+                src={p.image_url || "https://via.placeholder.com/200"}
+                alt={p.name}
+              />
 
               <h3>{p.name}</h3>
-
-              <p className="price">₹{p.price}</p>
+              <p>₹{p.price}</p>
 
               <button onClick={() => handleAddToCart(p.id)}>
                 <ShoppingCart size={16} /> Add
@@ -93,11 +96,6 @@ export function Home({ onNavigate }: any) {
           ))}
         </div>
 
-        <div className="center">
-          <button onClick={() => onNavigate?.('products')}>
-            View All
-          </button>
-        </div>
       </div>
 
     </div>

@@ -1,54 +1,66 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/Products.css';
 
-export function Products({ onNavigate }: any) {
+export function Products() {
   const { user } = useAuth();
   const { addToCart } = useCart();
-  const { category } = useParams();
+  const navigate = useNavigate();
+
+  const { category } = useParams(); // slug from URL
 
   const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*');
-    setCategories(data || []);
-  };
 
   const fetchProducts = async () => {
     setLoading(true);
 
-    let query = supabase.from('products').select('*');
-
-    if (category && categories.length > 0) {
-      const found = categories.find(c => c.slug === category);
-      if (found?.id) {
-        query = query.eq('category_id', found.id);
-      }
+    // ✅ If no category → show all
+    if (!category) {
+      const { data } = await supabase.from('products').select('*');
+      setProducts(data || []);
+      setLoading(false);
+      return;
     }
 
-    const { data } = await query;
+    // ✅ Step 1: get category id using slug
+    const { data: catData, error: catError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', category)
+      .single();
+
+    if (catError || !catData) {
+      console.error("Category not found");
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Step 2: filter products using category_id
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category_id', catData.id);
+
+    if (error) {
+      console.error(error);
+    }
+
     setProducts(data || []);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (categories.length > 0) {
-      fetchProducts();
-    }
-  }, [categories, category]);
+    fetchProducts();
+  }, [category]);
 
   const handleAddToCart = async (id: string) => {
-    if (!user) return onNavigate?.('login');
+    if (!user) return navigate('/login');
     await addToCart(id, 1);
   };
 
@@ -56,19 +68,18 @@ export function Products({ onNavigate }: any) {
 
   return (
     <div className="products-container">
-      <h1>Products</h1>
+
+      <h1>
+        {category ? `${category} Products` : "All Products"}
+      </h1>
 
       <div className="products-grid">
         {products.map(p => (
           <div key={p.id} className="product-card">
 
-            {/* ✅ FIXED IMAGE */}
             <img
               src={p.image_url || "https://via.placeholder.com/150"}
               alt={p.name}
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/150";
-              }}
             />
 
             <h3>{p.name}</h3>
@@ -81,6 +92,7 @@ export function Products({ onNavigate }: any) {
           </div>
         ))}
       </div>
+
     </div>
   );
 }
