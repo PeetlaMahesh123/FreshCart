@@ -1,4 +1,278 @@
-FreshCart
+# 🛒 FreshCart - Full Stack E-Commerce Application
 
-## Live link :
-https://freshcart-fy0h.onrender.com
+FreshCart is a modern full-stack e-commerce web application built using **React, TypeScript, Supabase, and Vite**. It includes user authentication, product management, cart functionality, admin dashboard, and secure checkout flow.
+
+---
+
+## 🚀 Live Demo
+
+🔗 https://freshcart-fy0h.onrender.com/
+
+---
+
+## 📌 Features
+
+### 👤 User Features
+
+* User Registration with Email Verification
+* Secure Login & Logout
+* Browse Products
+* Add to Cart
+* Checkout System
+* View Orders
+* Profile Management
+
+### 🛠️ Admin Features
+
+* Admin Dashboard
+* Manage Products (Add / Delete)
+* Manage Orders
+* Manage Users
+* Role-based Access Control
+
+---
+
+## 🧱 Tech Stack
+
+### Frontend
+
+* React + TypeScript
+* Vite
+* CSS (Custom + Responsive Design)
+
+### Backend
+
+* Supabase (Auth + Database + API)
+
+### Deployment
+
+* Render
+
+---
+
+## 📂 Project Structure
+
+```
+FreshCart/
+│
+├── .github/workflows/       # CI/CD deployment
+│   └── deploy.yml
+│
+├── public/                  # Static assets
+├── dist/                    # Production build
+├── node_modules/
+│
+├── src/
+│   ├── components/          # Reusable components
+│   │   ├── Layout.tsx
+│   │   ├── AdminHelper.tsx
+│   │   └── DebugProducts.tsx
+│   │
+│   ├── contexts/            # Global state management
+│   │   ├── AuthContext.tsx
+│   │   └── CartContext.tsx
+│   │
+│   ├── lib/                 # Config & utilities
+│   │   ├── supabase.ts
+│   │   └── database.types.ts
+│   │
+│   ├── pages/
+│   │   ├── Home.tsx
+│   │   ├── Products.tsx
+│   │   ├── Cart.tsx
+│   │   ├── Checkout.tsx
+│   │   ├── Orders.tsx
+│   │   ├── Profile.tsx
+│   │   ├── Login.tsx
+│   │   ├── Register.tsx
+│   │   ├── AuthCallback.tsx
+│   │   │
+│   │   └── admin/
+│   │       ├── Admin.tsx
+│   │       ├── AdminDashboard.tsx
+│   │       ├── AdminProducts.tsx
+│   │       ├── AdminOrders.tsx
+│   │       └── AdminUsers.tsx
+│   │
+│   ├── styles/
+│   │   ├── components/
+│   │   └── pages/
+│   │
+│   ├── App.tsx
+│   └── main.tsx
+│
+├── supabase/                # Supabase config
+├── .env                     # Environment variables
+│
+├── SQL Files (Database Setup)
+│   ├── create-admin.sql
+│   ├── seed-products.sql
+│   ├── fix-products-rls.sql
+│   └── ...
+│
+├── package.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/PeetlaMahesh123/FreshCart.git
+cd freshcart
+```
+
+---
+
+### 2️⃣ Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+### 3️⃣ Setup environment variables
+
+Create a `.env` file in root:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_RAZORPAY_KEY=your_razorpay_key
+```
+
+---
+
+### 4️⃣ Setup Supabase
+
+* Create a project in Supabase
+* Run SQL files inside `/supabase` or root:
+
+  * `seed-products.sql`
+  * `create-admin.sql`
+  * `fix-products-rls.sql`
+
+---
+
+### 5️⃣ Run the project
+
+```bash
+npm run dev
+```
+
+App runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔐 Authentication Flow
+
+* Email/password authentication using Supabase
+* Email verification required before login
+* Auth callback handled in:
+
+  ```
+  src/pages/AuthCallback.tsx
+  ```
+
+---
+
+## 🛒 Core Functionalities
+
+### Cart System
+
+* Add/remove products
+* Quantity management
+* Stored using context API
+
+### Checkout
+
+* Order creation
+* Data stored in Supabase
+
+### Admin Panel
+
+Accessible only for admin users:
+
+```
+/admin
+```
+
+---
+
+## 🧪 Debug & Fix Scripts
+
+Project includes SQL and debug tools:
+
+* `debug-products.sql`
+* `fix-cart.sql`
+* `fix-orders.sql`
+* `REAL_FIX.sql`
+
+Used for:
+
+* Fixing database issues
+* Debugging product loading
+* Managing permissions (RLS)
+
+---
+
+## 🚀 Deployment
+
+### Render Deployment
+
+1. Build command:
+
+```bash
+npm run build
+```
+
+2. Publish directory:
+
+```
+dist
+```
+
+---
+
+## 🧠 Best Practices Used
+
+* Modular folder structure
+* Context API for state management
+* Reusable components
+* Responsive UI design
+* Secure authentication (Supabase)
+* Role-based authorization
+
+---
+
+## 📸 Screenshots
+
+*Add your UI screenshots here*
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+---
+
+## 👨‍💻 Author
+
+Mahesh Peetla
+GitHub: https://github.com/PeetlaMahesh123
+
+---
+
+## ⭐ Support
+
+If you like this project, give it a ⭐ on GitHub!
