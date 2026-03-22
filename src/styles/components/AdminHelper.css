@@ -1,20 +1,30 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* CONTAINER */
 .admin-helper-container {
-  max-width: 400px;
-  margin: 30px auto;
+  max-width: 420px;
+  margin: 40px auto;
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: 0.3s;
 }
 
 /* HEADER */
 .admin-helper-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 10px;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* DESCRIPTION */
@@ -27,56 +37,138 @@
 /* INPUT */
 .admin-input {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 12px;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* INPUT FOCUS */
+.admin-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.2);
 }
 
 /* BUTTON */
 .admin-btn {
   width: 100%;
-  background: purple;
+  background: linear-gradient(135deg, #7c3aed, #6b21a8);
   color: white;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s;
 }
 
+/* BUTTON HOVER */
 .admin-btn:hover {
-  background: #6b21a8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(124,58,237,0.4);
 }
 
+/* DISABLED */
 .admin-btn:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* MESSAGE */
 .admin-message {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 6px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
+/* SUCCESS */
 .admin-message.success {
   background: #dcfce7;
-  color: green;
+  color: #166534;
 }
 
+/* ERROR */
 .admin-message.error {
   background: #fee2e2;
-  color: red;
+  color: #dc2626;
 }
 
 /* NOTE */
 .admin-note {
   margin-top: 15px;
   background: #fef9c3;
-  padding: 10px;
-  border-radius: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #854d0e;
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .admin-helper-container {
+    margin: 30px auto;
+    padding: 22px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .admin-helper-container {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .admin-helper-header {
+    font-size: 15px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .admin-helper-container {
+    margin: 15px;
+    padding: 18px;
+  }
+
+  .admin-input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .admin-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .admin-message,
+  .admin-note {
+    font-size: 12px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+@media (min-width: 1200px) {
+  .admin-helper-container {
+    max-width: 450px;
+  }
 }

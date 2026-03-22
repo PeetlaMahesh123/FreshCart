@@ -1,9 +1,18 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* MAIN */
 .register-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
   background: linear-gradient(135deg, #2563eb, #10b981);
 }
 
@@ -16,10 +25,19 @@
 /* CARD */
 .register-card {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  animation: fadeIn 0.4s ease;
 }
 
+/* ANIMATION */
+@keyframes fadeIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* CENTER */
 .center {
   text-align: center;
 }
@@ -28,54 +46,74 @@
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
+/* INPUT */
 .register-form input {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.2s;
+  width: 100%;
+}
+
+/* FOCUS */
+.register-form input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
 }
 
 /* PASSWORD */
 .password-box {
   display: flex;
+  align-items: center;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .password-box input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 12px;
 }
 
 .password-box button {
   border: none;
   background: none;
-  padding: 8px;
+  padding: 10px;
   cursor: pointer;
+  color: #555;
 }
 
 /* BUTTON */
 .register-btn {
   background: #16a34a;
   color: white;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .register-btn:hover {
   background: #15803d;
+  transform: translateY(-1px);
 }
 
 /* ERROR */
 .error-box {
   background: #fee2e2;
-  color: red;
+  color: #dc2626;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 /* BACK */
@@ -84,16 +122,67 @@
   border: none;
   background: none;
   color: white;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 /* FOOTER */
 .footer-text {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 .footer-text button {
   border: none;
   background: none;
   color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .register-card {
+    padding: 25px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 15px;
+  }
+
+  .register-card {
+    padding: 22px;
+    border-radius: 14px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .register-card {
+    padding: 18px;
+  }
+
+  .register-form input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .register-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .footer-text {
+    font-size: 13px;
+  }
 }

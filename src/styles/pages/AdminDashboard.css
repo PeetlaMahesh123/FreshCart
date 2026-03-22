@@ -1,3 +1,12 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* CONTAINER */
 .dashboard-container {
   padding: 20px;
 }
@@ -22,8 +31,14 @@
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  transition: 0.3s;
 }
 
+.dashboard-card:hover {
+  transform: translateY(-3px);
+}
+
+/* CARD CONTENT */
 .card-content {
   display: flex;
   justify-content: space-between;
@@ -45,6 +60,7 @@
   justify-content: center;
 }
 
+/* COLORS */
 .blue { background: #dbeafe; }
 .green { background: #dcfce7; }
 .orange { background: #ffedd5; }
@@ -62,6 +78,11 @@
   padding: 20px;
   border-radius: 12px;
   color: white;
+  transition: 0.3s;
+}
+
+.revenue-card:hover {
+  opacity: 0.9;
 }
 
 .revenue-card.blue { background: #3b82f6; }
@@ -73,16 +94,24 @@
   background: white;
   padding: 20px;
   border-radius: 12px;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* prevents breaking on small screens */
 }
 
 th, td {
-  padding: 10px;
+  padding: 12px;
   text-align: left;
+  font-size: 14px;
+}
+
+th {
+  font-weight: 600;
+  color: #333;
 }
 
 tr:hover {
@@ -91,9 +120,10 @@ tr:hover {
 
 /* STATUS */
 .status {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 10px;
   font-size: 12px;
+  font-weight: 500;
 }
 
 .status.pending { background: #fef9c3; }
@@ -114,4 +144,76 @@ tr:hover {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ========================= */
+/* 📱 TABLET RESPONSIVE */
+/* ========================= */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .revenue-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE RESPONSIVE */
+/* ========================= */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .revenue-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-content {
+    flex-direction: row;
+  }
+
+  .dashboard-card,
+  .revenue-card {
+    padding: 15px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  th, td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .icon-box {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+@media (min-width: 1200px) {
+  .dashboard-container {
+    max-width: 1400px;
+    margin: auto;
+  }
 }

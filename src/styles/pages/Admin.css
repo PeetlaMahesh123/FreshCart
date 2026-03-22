@@ -1,7 +1,17 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* MAIN CONTAINER */
 .admin-container {
   min-height: 100vh;
   background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
 }
 
 /* HEADER */
@@ -12,49 +22,61 @@
   padding: 15px 20px;
   background: white;
   border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-header h1 {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
 }
 
 .admin-header button {
   background: #16a34a;
   color: white;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.admin-header button:hover {
+  background: #15803d;
 }
 
 /* BODY */
 .admin-body {
   display: flex;
+  flex: 1;
   padding: 20px;
   gap: 20px;
 }
 
 /* SIDEBAR */
 .admin-sidebar {
-  width: 200px;
+  width: 220px;
   background: white;
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: 0.3s;
 }
 
+/* SIDEBAR BUTTON */
 .sidebar-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px;
+  padding: 12px;
   border: none;
   background: none;
   cursor: pointer;
   border-radius: 8px;
+  font-size: 14px;
+  transition: 0.3s;
 }
 
 .sidebar-btn:hover {
@@ -64,11 +86,16 @@
 .sidebar-btn.active {
   background: #dcfce7;
   color: #16a34a;
+  font-weight: 600;
 }
 
 /* CONTENT */
 .admin-content {
   flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  overflow-x: auto;
 }
 
 /* ACCESS DENIED */
@@ -84,18 +111,88 @@
   padding: 30px;
   border-radius: 10px;
   text-align: center;
+  max-width: 350px;
+  width: 90%;
 }
 
 .denied-box h2 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 10px;
 }
 
 .denied-box button {
   background: #16a34a;
   color: white;
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
+}
+
+/* ========================= */
+/* 📱 MOBILE RESPONSIVE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .admin-body {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+
+  .sidebar-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .admin-content {
+    padding: 15px;
+  }
+
+  .admin-header h1 {
+    font-size: 18px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+
+@media (max-width: 480px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-header button {
+    width: 100%;
+  }
+
+  .sidebar-btn {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .admin-content {
+    padding: 12px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+
+@media (min-width: 1200px) {
+  .admin-container {
+    max-width: 1400px;
+    margin: auto;
+  }
 }

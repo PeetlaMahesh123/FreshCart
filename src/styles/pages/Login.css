@@ -1,9 +1,18 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* CONTAINER */
 .login-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
   background: linear-gradient(135deg, #2563eb, #10b981);
 }
 
@@ -16,8 +25,16 @@
 /* CARD */
 .login-card {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  animation: fadeIn 0.4s ease;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* HEADER */
@@ -28,19 +45,32 @@
 
 .login-header h2 {
   margin: 10px 0;
+  font-size: 22px;
+  font-weight: bold;
 }
 
 /* FORM */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
+/* INPUT */
 .login-form input {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.2s;
+  width: 100%;
+}
+
+/* FOCUS */
+.login-form input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
 }
 
 /* PASSWORD */
@@ -48,43 +78,50 @@
   display: flex;
   align-items: center;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .password-box input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 12px;
 }
 
 .password-box button {
   border: none;
   background: none;
-  padding: 8px;
+  padding: 10px;
   cursor: pointer;
+  color: #555;
 }
 
 /* BUTTON */
 .login-btn {
   background: #16a34a;
   color: white;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s;
 }
 
 .login-btn:hover {
   background: #15803d;
+  transform: translateY(-1px);
 }
 
 /* ERROR */
 .error-box {
   background: #fee2e2;
-  color: red;
+  color: #dc2626;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 /* BACK BUTTON */
@@ -94,12 +131,14 @@
   border: none;
   color: white;
   cursor: pointer;
+  font-size: 14px;
 }
 
 /* FOOTER */
 .login-footer {
   margin-top: 15px;
   text-align: center;
+  font-size: 14px;
 }
 
 .login-footer button {
@@ -107,4 +146,55 @@
   background: none;
   color: #2563eb;
   cursor: pointer;
+  font-weight: 500;
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .login-card {
+    padding: 25px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 15px;
+  }
+
+  .login-card {
+    padding: 22px;
+    border-radius: 14px;
+  }
+
+  .login-header h2 {
+    font-size: 20px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 18px;
+  }
+
+  .login-form input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .login-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .login-footer {
+    font-size: 13px;
+  }
 }

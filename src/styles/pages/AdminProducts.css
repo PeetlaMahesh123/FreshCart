@@ -1,3 +1,12 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* CONTAINER */
 .products-container {
   padding: 20px;
 }
@@ -6,7 +15,10 @@
 .products-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .products-header h1 {
@@ -18,13 +30,14 @@
 .add-btn {
   background: #16a34a;
   color: white;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 8px;
   display: flex;
   gap: 6px;
   align-items: center;
   cursor: pointer;
   border: none;
+  transition: 0.3s;
 }
 
 .add-btn:hover {
@@ -34,24 +47,29 @@
 /* TABLE */
 .products-table {
   background: white;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 15px;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px; /* prevents break on mobile */
 }
 
 th {
   text-align: left;
-  padding: 10px;
+  padding: 12px;
   background: #f3f4f6;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 td {
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid #eee;
+  font-size: 14px;
 }
 
 tr:hover {
@@ -68,6 +86,13 @@ tr:hover {
   border: none;
   background: none;
   cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.actions button:hover {
+  background: #f3f4f6;
 }
 
 /* FORM */
@@ -75,7 +100,10 @@ tr:hover {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
 }
 
 .product-form input,
@@ -83,6 +111,14 @@ tr:hover {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.product-form input:focus,
+.product-form select:focus {
+  border-color: #2563eb;
+  outline: none;
 }
 
 /* SUBMIT BUTTON */
@@ -93,8 +129,70 @@ tr:hover {
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  transition: 0.3s;
 }
 
 .submit-btn:hover {
   background: #1d4ed8;
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .products-header h1 {
+    font-size: 22px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .products-container {
+    padding: 15px;
+  }
+
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .products-header h1 {
+    font-size: 20px;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .product-form {
+    padding: 15px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  th, td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .add-btn {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+@media (min-width: 1200px) {
+  .products-container {
+    max-width: 1400px;
+    margin: auto;
+  }
 }

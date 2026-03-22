@@ -1,3 +1,12 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* CONTAINER */
 .users-container {
   padding: 20px;
 }
@@ -6,7 +15,10 @@
 .users-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .users-header h1 {
@@ -18,6 +30,8 @@
   display: flex;
   gap: 6px;
   align-items: center;
+  font-size: 14px;
+  color: #555;
 }
 
 /* SEARCH */
@@ -25,38 +39,47 @@
   display: flex;
   align-items: center;
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 8px 12px;
   border-radius: 8px;
   gap: 8px;
   margin-bottom: 20px;
+  background: #fff;
+  max-width: 300px;
 }
 
 .search-box input {
   border: none;
   outline: none;
+  width: 100%;
+  font-size: 14px;
 }
 
 /* TABLE */
 .users-table {
   background: white;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 15px;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px; /* important for mobile */
 }
 
 th {
   background: #f3f4f6;
-  padding: 10px;
+  padding: 12px;
   text-align: left;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 td {
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid #eee;
+  font-size: 14px;
 }
 
 tr:hover {
@@ -65,17 +88,20 @@ tr:hover {
 
 /* ROLE */
 .role {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 10px;
   font-size: 12px;
+  font-weight: 500;
 }
 
 .role.admin {
   background: #e9d5ff;
+  color: #6b21a8;
 }
 
 .role.user {
   background: #e5e7eb;
+  color: #374151;
 }
 
 /* ACTIONS */
@@ -88,6 +114,13 @@ tr:hover {
   border: none;
   background: none;
   cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.actions button:hover {
+  background: #f3f4f6;
 }
 
 /* MODAL */
@@ -98,20 +131,38 @@ tr:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 15px;
+  z-index: 1000;
 }
 
 .modal-box {
   background: white;
   padding: 20px;
-  border-radius: 10px;
-  width: 300px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 350px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .modal-box input,
 .modal-box select {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.modal-box input:focus,
+.modal-box select:focus {
+  border-color: #16a34a;
+  outline: none;
 }
 
 /* BUTTONS */
@@ -121,17 +172,31 @@ tr:hover {
 }
 
 .save-btn {
-  background: green;
+  background: #16a34a;
   color: white;
-  padding: 8px;
+  padding: 10px;
   flex: 1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background: #15803d;
 }
 
 .cancel-btn {
-  background: gray;
+  background: #6b7280;
   color: white;
-  padding: 8px;
+  padding: 10px;
   flex: 1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #4b5563;
 }
 
 /* LOADER */
@@ -139,7 +204,7 @@ tr:hover {
   width: 40px;
   height: 40px;
   border: 4px solid #ddd;
-  border-top: 4px solid green;
+  border-top: 4px solid #16a34a;
   border-radius: 50%;
   margin: 100px auto;
   animation: spin 1s linear infinite;
@@ -147,4 +212,60 @@ tr:hover {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .users-header h1 {
+    font-size: 22px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .users-container {
+    padding: 15px;
+  }
+
+  .users-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .users-header h1 {
+    font-size: 20px;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  th, td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .users-count {
+    font-size: 12px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+@media (min-width: 1200px) {
+  .users-container {
+    max-width: 1400px;
+    margin: auto;
+  }
 }

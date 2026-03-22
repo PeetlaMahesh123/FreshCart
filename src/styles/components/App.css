@@ -1,3 +1,11 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* LOADING SCREEN */
 .app-loading {
   min-height: 100vh;
@@ -5,24 +13,68 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
+/* BOX */
 .loading-box {
   text-align: center;
   color: white;
+  animation: fadeIn 0.4s ease;
+}
+
+/* TITLE (optional if you add text) */
+.loading-text {
+  margin-top: 15px;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
 /* SPINNER */
 .spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid white;
-  border-top: 5px solid transparent;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top: 5px solid white;
   border-radius: 50%;
   margin: auto;
   animation: spin 1s linear infinite;
 }
 
+/* ANIMATIONS */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .spinner {
+    width: 45px;
+    height: 45px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  .loading-text {
+    font-size: 13px;
+  }
 }

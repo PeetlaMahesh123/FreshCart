@@ -1,43 +1,121 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
 /* CONTAINER */
 .debug-container {
   max-width: 800px;
-  margin: 30px auto;
+  margin: 40px auto;
   background: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 /* TITLE */
 .debug-container h2 {
   margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
 }
 
 /* BOX */
 .debug-box {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
   margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-left: 5px solid transparent;
 }
 
 /* COLORS */
 .debug-box.blue {
   background: #dbeafe;
+  border-left-color: #3b82f6;
 }
 
 .debug-box.green {
   background: #dcfce7;
+  border-left-color: #16a34a;
 }
 
 .debug-box.yellow {
   background: #fef9c3;
+  border-left-color: #ca8a04;
 }
 
 .debug-box.red {
   background: #fee2e2;
+  border-left-color: #dc2626;
+}
+
+/* CODE STYLE (optional enhancement) */
+.debug-box code {
+  background: rgba(0,0,0,0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
 }
 
 /* LOADING */
 .debug-loading {
   text-align: center;
-  padding: 50px;
+  padding: 60px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ========================= */
+/* 📱 TABLET */
+/* ========================= */
+@media (max-width: 1024px) {
+  .debug-container {
+    margin: 30px auto;
+    padding: 22px;
+  }
+}
+
+/* ========================= */
+/* 📱 MOBILE */
+/* ========================= */
+@media (max-width: 768px) {
+  .debug-container {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .debug-container h2 {
+    font-size: 20px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE */
+/* ========================= */
+@media (max-width: 480px) {
+  .debug-container {
+    margin: 15px;
+    padding: 18px;
+  }
+
+  .debug-box {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+/* ========================= */
+/* 💻 LARGE SCREENS */
+/* ========================= */
+@media (min-width: 1200px) {
+  .debug-container {
+    max-width: 900px;
+  }
 }
