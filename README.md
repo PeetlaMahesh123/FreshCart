@@ -9,7 +9,7 @@ FreshCart is a modern full-stack e-commerce web application built using **React,
 🔗 https://freshcart-fy0h.onrender.com/
 
 ---
-
+## 📸 Screenshots
 <img width="1923" height="791" alt="image" src="https://github.com/user-attachments/assets/e9444e9b-085c-417e-a19e-ece9cc1416c2" />
 <img width="1923" height="865" alt="image" src="https://github.com/user-attachments/assets/ffea0fe3-b33d-454d-8da9-2e42a4053bae" />
 <img width="1917" height="787" alt="image" src="https://github.com/user-attachments/assets/d9f832f5-4c1c-4c7d-aaed-ec44ae1ee946" />
@@ -264,12 +264,6 @@ dist
 * Responsive UI design
 * Secure authentication (Supabase)
 * Role-based authorization
-
----
-
-## 📸 Screenshots
-
-*Add your UI screenshots here*
 
 ---
 
