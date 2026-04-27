@@ -32,37 +32,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🛒 Fetching cart for user:', user.id);
 
-      // Get user's cart (use first cart only)
-      let { data: cart, error: cartError } = await supabase
+      // Simple cart query - no complex joins
+      let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      console.log('📦 Cart result:', { cart, cartError });
-
-      if (cartError) {
-        console.error('❌ Cart error:', cartError);
-        setCartItems([]);
-        setLoading(false);
-        return;
-      }
+      console.log('📦 Cart found:', cart);
 
       if (!cart) {
         console.log('➕ Creating new cart');
-        const { data: newCart, error: insertError } = await supabase
+        const { data: newCart } = await supabase
           .from('cart')
           .insert([{ user_id: user.id }])
           .select('id')
           .maybeSingle();
-
-        if (insertError) {
-          console.error('❌ Cart creation error:', insertError);
-          setCartItems([]);
-          setLoading(false);
-          return;
-        }
 
         cart = newCart;
         console.log('🆕 New cart created:', cart);
@@ -76,7 +61,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       // Get cart items with product info
-      const { data: items, error: itemsError } = await supabase
+      const { data: items, error } = await supabase
         .from('cart_items')
         .select(`
           id,
@@ -94,14 +79,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         `)
         .eq('cart_id', cart.id);
 
-      console.log('📦 Cart items:', { items, itemsError });
+      console.log('📦 Cart items:', { items, error });
 
-      if (itemsError) {
-        console.error('❌ Cart items error:', itemsError);
+      if (error) {
+        console.error('❌ Error fetching cart items:', error);
         setCartItems([]);
       } else {
         setCartItems(items as unknown as CartItem[] || []);
-        console.log('✅ Cart loaded with items:', items?.length || 0);
       }
 
     } catch (error) {
@@ -125,31 +109,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Get or create cart (use first cart only)
-      let { data: cart, error: cartError } = await supabase
+      // Get or create cart
+      let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
-
-      if (cartError) {
-        console.error('❌ Cart fetch error:', cartError);
-        return;
-      }
+        .maybeSingle();
 
       if (!cart) {
-        console.log('➕ Creating new cart for add to cart');
-        const { data: newCart, error: insertError } = await supabase
+        const { data: newCart } = await supabase
           .from('cart')
           .insert([{ user_id: user.id }])
           .select('id')
           .maybeSingle();
-
-        if (insertError) {
-          console.error('❌ Cart creation error:', insertError);
-          return;
-        }
 
         cart = newCart;
       }
@@ -162,22 +134,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.log('📦 Using cart:', cart.id);
 
       // Check if item already exists
-      const { data: existingItem, error: checkError } = await supabase
+      const { data: existingItem } = await supabase
         .from('cart_items')
         .select('*')
         .eq('cart_id', cart.id)
         .eq('product_id', productId)
         .maybeSingle();
 
-      if (checkError) {
-        console.error('❌ Check existing item error:', checkError);
-        return;
-      }
-
       console.log('📦 Existing item:', existingItem);
 
-      let operationError;
-      
       if (existingItem) {
         // Update existing item
         const { error } = await supabase
@@ -187,7 +152,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
           })
           .eq('id', existingItem.id);
 
-        operationError = error;
         console.log('🔄 Updated item:', { error });
       } else {
         // Add new item
@@ -201,18 +165,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
           ]);
 
-        operationError = error;
         console.log('➕ Added new item:', { error });
       }
 
-      if (operationError) {
-        console.error('❌ Cart operation failed:', operationError);
-        return;
-      }
-
-      console.log('✅ Cart operation successful, refreshing...');
-      
-      // Refresh cart to get updated items
+      // Refresh cart
       await fetchCart();
 
     } catch (error) {

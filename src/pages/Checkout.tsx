@@ -95,6 +95,7 @@ export function Checkout() {
       currency: "INR",
       name: "FreshCart",
       description: "Order Payment",
+      image: "/logo.png", // Use relative path to avoid localhost issues
 
       handler: async function () {
         await createOrder();

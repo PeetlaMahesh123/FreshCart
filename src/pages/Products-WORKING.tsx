@@ -68,6 +68,7 @@ export function Products() {
     console.log('🛒 Add to Cart clicked:', { productId, productName, userId: user?.id });
     
     if (!user) {
+      alert('Please login to add items to cart');
       navigate('/login');
       return;
     }
@@ -78,15 +79,13 @@ export function Products() {
       console.log('🔄 Adding to cart...');
       await addToCart(productId, 1);
       
+      // Show success feedback
+      alert(`${productName} added to cart!`);
       console.log('✅ Successfully added to cart');
-      
-      // Navigate to cart page after adding
-      setTimeout(() => {
-        navigate('/cart');
-      }, 500);
       
     } catch (error) {
       console.error('❌ Failed to add to cart:', error);
+      alert('Failed to add to cart. Please try again.');
     } finally {
       setAddingToCart(null);
     }

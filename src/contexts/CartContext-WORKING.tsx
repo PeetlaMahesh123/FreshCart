@@ -32,13 +32,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🛒 Fetching cart for user:', user.id);
 
-      // Get user's cart (use first cart only)
+      // Get user's cart
       let { data: cart, error: cartError } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
       console.log('📦 Cart result:', { cart, cartError });
 
@@ -125,13 +124,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Get or create cart (use first cart only)
+      // Get or create cart
       let { data: cart, error: cartError } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
       if (cartError) {
         console.error('❌ Cart fetch error:', cartError);
