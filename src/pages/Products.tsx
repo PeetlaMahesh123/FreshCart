@@ -3,68 +3,88 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
 import '../styles/pages/Products.css';
 
 export function Products() {
-  const { user } = useAuth();
   const { addToCart } = useCart();
   const navigate = useNavigate();
-
-  const { category } = useParams(); // slug from URL
+  const { category } = useParams();
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Fetch products
   const fetchProducts = async () => {
     setLoading(true);
 
-    // ✅ If no category → show all
-    if (!category) {
-      const { data } = await supabase.from('products').select('*');
+    try {
+      // 👉 If no category → get all products
+      if (!category) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+
+        if (error) throw error;
+
+        setProducts(data || []);
+        return;
+      }
+
+      // 👉 Step 1: get category id
+      const { data: catData, error: catError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', category)
+        .maybeSingle(); // 🔥 safe
+
+      if (catError || !catData) {
+        console.error("Category not found");
+        setProducts([]);
+        return;
+      }
+
+      // 👉 Step 2: fetch products
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category_id', catData.id);
+
+      if (error) throw error;
+
       setProducts(data || []);
-      setLoading(false);
-      return;
-    }
 
-    // ✅ Step 1: get category id using slug
-    const { data: catData, error: catError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('slug', category)
-      .single();
-
-    if (catError || !catData) {
-      console.error("Category not found");
+    } catch (err) {
+      console.error("Fetch products error:", err);
       setProducts([]);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // ✅ Step 2: filter products using category_id
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('category_id', catData.id);
-
-    if (error) {
-      console.error(error);
-    }
-
-    setProducts(data || []);
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchProducts();
   }, [category]);
 
-  const handleAddToCart = async (id: string) => {
-    if (!user) return navigate('/login');
-    await addToCart(id, 1);
+  // 🔥 FIXED ADD TO CART
+  const handleAddToCart = async (productId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      await addToCart(productId, 1);
+
+    } catch (error) {
+      console.error("Add to cart error:", error);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <div className="products-container">Loading...</div>;
+  }
 
   return (
     <div className="products-container">
@@ -74,7 +94,7 @@ export function Products() {
       </h1>
 
       <div className="products-grid">
-        {products.map(p => (
+        {products.map((p) => (
           <div key={p.id} className="product-card">
 
             <img

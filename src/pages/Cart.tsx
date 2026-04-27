@@ -8,14 +8,20 @@ export function Cart() {
 
   const { cartItems, cartTotal, updateCartItem, removeFromCart } = useCart();
 
-  if (cartItems.length === 0) {
-    return <div className="cart-container">Your cart is empty</div>;
+  if (!cartItems || cartItems.length === 0) {
+    return (
+      <div className="cart-container">
+        <h2>Your cart is empty 🛒</h2>
+        <button onClick={() => navigate('/')}>
+          <ArrowLeft size={16} /> Continue Shopping
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="cart-container">
 
-      {/* Back */}
       <button onClick={() => navigate('/')}>
         <ArrowLeft size={16} /> Back
       </button>
@@ -35,6 +41,7 @@ export function Cart() {
               <h3>{item.product.name}</h3>
 
               <div className="qty-controls">
+
                 <button onClick={() => updateCartItem(item.id, item.quantity - 1)}>
                   <Minus size={14} />
                 </button>
@@ -48,6 +55,7 @@ export function Cart() {
                 <button onClick={() => removeFromCart(item.id)}>
                   <Trash2 size={16} />
                 </button>
+
               </div>
             </div>
 
@@ -59,7 +67,6 @@ export function Cart() {
 
       <h2>Total: ₹{cartTotal}</h2>
 
-      {/* ✅ FIXED BUTTON */}
       <button
         className="checkout-btn"
         onClick={() => navigate('/checkout')}

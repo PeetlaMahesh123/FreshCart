@@ -1,0 +1,43 @@
+/* CONTAINER */
+.debug-container {
+  max-width: 800px;
+  margin: 30px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* TITLE */
+.debug-container h2 {
+  margin-bottom: 20px;
+}
+
+/* BOX */
+.debug-box {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* COLORS */
+.debug-box.blue {
+  background: #dbeafe;
+}
+
+.debug-box.green {
+  background: #dcfce7;
+}
+
+.debug-box.yellow {
+  background: #fef9c3;
+}
+
+.debug-box.red {
+  background: #fee2e2;
+}
+
+/* LOADING */
+.debug-loading {
+  text-align: center;
+  padding: 50px;
+}

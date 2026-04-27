@@ -45,7 +45,7 @@ export function Checkout() {
         status: 'confirmed',
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error || !order) {
       alert("Order failed");
