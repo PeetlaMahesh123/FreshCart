@@ -47,7 +47,7 @@ export function AuthProvider({ children }: any) {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     setProfile(data || null);
   };

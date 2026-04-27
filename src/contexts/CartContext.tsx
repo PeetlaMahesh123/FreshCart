@@ -30,31 +30,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Get or create cart
       let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Create cart if it doesn't exist
       if (!cart) {
-        const { data: newCart, error: cartError } = await supabase
+        const { data: newCart } = await supabase
           .from('cart')
-          .insert({ user_id: user.id })
+          .insert([{ user_id: user.id }])
           .select('id')
-          .single();
-        
-        if (cartError) {
-          console.error('Error creating cart:', cartError);
-          setCartItems([]);
-          setLoading(false);
-          return;
-        }
+          .maybeSingle();
+
         cart = newCart;
       }
 
-      const { data: items, error } = await supabase
+      if (!cart) return; // 🔥 Type safety fix
+
+      const { data: items } = await supabase
         .from('cart_items')
         .select(`
           id,
@@ -72,9 +66,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         `)
         .eq('cart_id', cart.id);
 
-      if (error) throw error;
+      setCartItems(items as unknown as CartItem[] || []);
 
-      setCartItems(items as unknown as CartItem[]);
     } catch (error) {
       console.error('Error fetching cart:', error);
       setCartItems([]);
@@ -91,110 +84,105 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     try {
-      // Get or create cart
       let { data: cart } = await supabase
         .from('cart')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Create cart if it doesn't exist
       if (!cart) {
-        const { data: newCart, error: cartError } = await supabase
+        const { data: newCart } = await supabase
           .from('cart')
-          .insert({ user_id: user.id })
+          .insert([{ user_id: user.id }])
           .select('id')
-          .single();
-        
-        if (cartError) throw cartError;
+          .maybeSingle();
+
         cart = newCart;
       }
 
-      const existingItem = cartItems.find(item => item.product_id === productId);
+      if (!cart) return; // 🔥 fix
+
+      const { data: existingItem } = await supabase
+        .from('cart_items')
+        .select('*')
+        .eq('cart_id', cart.id)
+        .eq('product_id', productId)
+        .maybeSingle(); // 🔥 fix
 
       if (existingItem) {
         await supabase
           .from('cart_items')
-          .update({ quantity: existingItem.quantity + quantity })
+          .update({
+            quantity: existingItem.quantity + quantity
+          })
           .eq('id', existingItem.id);
       } else {
         await supabase
           .from('cart_items')
-          .insert({ cart_id: cart.id, product_id: productId, quantity });
+          .insert([
+            {
+              cart_id: cart.id,
+              product_id: productId,
+              quantity
+            }
+          ]);
       }
 
-      await fetchCart();
+      fetchCart();
+
     } catch (error) {
       console.error('Error adding to cart:', error);
-      throw error;
     }
   };
 
   const updateCartItem = async (itemId: string, quantity: number) => {
-    try {
-      if (quantity <= 0) {
-        await removeFromCart(itemId);
-        return;
-      }
-
-      await supabase
-        .from('cart_items')
-        .update({ quantity })
-        .eq('id', itemId);
-
-      await fetchCart();
-    } catch (error) {
-      console.error('Error updating cart item:', error);
-      throw error;
+    if (quantity <= 0) {
+      return removeFromCart(itemId);
     }
+
+    await supabase
+      .from('cart_items')
+      .update({ quantity })
+      .eq('id', itemId);
+
+    fetchCart();
   };
 
   const removeFromCart = async (itemId: string) => {
-    try {
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', itemId);
+    await supabase
+      .from('cart_items')
+      .delete()
+      .eq('id', itemId);
 
-      await fetchCart();
-    } catch (error) {
-      console.error('Error removing from cart:', error);
-      throw error;
-    }
+    fetchCart();
   };
 
   const clearCart = async () => {
     if (!user) return;
 
-    try {
-      const { data: cart } = await supabase
-        .from('cart')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    const { data: cart } = await supabase
+      .from('cart')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-      if (!cart) return;
+    if (!cart) return;
 
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('cart_id', cart.id);
+    await supabase
+      .from('cart_items')
+      .delete()
+      .eq('cart_id', cart.id);
 
-      await fetchCart();
-    } catch (error) {
-      console.error('Error clearing cart:', error);
-      throw error;
-    }
+    fetchCart();
   };
 
-  const refreshCart = async () => {
-    await fetchCart();
-  };
+  const refreshCart = async () => fetchCart();
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   const cartTotal = cartItems.reduce((sum, item) => {
     const price = item.product.discount_price || item.product.price;
-    return sum + (price * item.quantity);
+    return sum + price * item.quantity;
   }, 0);
 
   return (
@@ -208,7 +196,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateCartItem,
         removeFromCart,
         clearCart,
-        refreshCart,
+        refreshCart
       }}
     >
       {children}
@@ -218,8 +206,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within CartProvider');
   return context;
 }
