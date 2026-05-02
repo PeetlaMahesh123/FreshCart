@@ -27,17 +27,7 @@ FreshCart is a modern full-stack e-commerce web application built using **React,
 
 
 ---
-## 📌 Features
 
-### 👤 User Features
-
-* User Registration with Email Verification
-* Secure Login & Logout
-* Browse Products
-* Add to Cart
-* Checkout System
-* View Orders
-* Profile Management
 
 ### 🛠️ Admin Features
 
